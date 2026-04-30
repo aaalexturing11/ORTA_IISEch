@@ -7,6 +7,8 @@ import Foundation
 import Combine
 
 final class AppSession: ObservableObject {
+    /// 0 = planear viaje, 1 = mapa, 2 = ajustes (orden del `TabView` en `ContentView`).
+    @Published var selectedMainTabIndex: Int = 0
     @Published var apiBaseURL: String {
         didSet { UserDefaults.standard.set(apiBaseURL, forKey: Self.baseURLKey) }
     }

@@ -11,13 +11,16 @@ struct ContentView: View {
     @StateObject private var session = AppSession()
 
     var body: some View {
-        TabView {
+        TabView(selection: $session.selectedMainTabIndex) {
             HomeView()
-                .tabItem { Label("Ruta", systemImage: "road.lanes") }
+                .tabItem { Label("Viaje", systemImage: "point.topleft.down.curvedto.point.bottomright.up") }
+                .tag(0)
             DriveNavigationView()
-                .tabItem { Label("Navegar", systemImage: "location.north.line.fill") }
+                .tabItem { Label("Mapa", systemImage: "map.fill") }
+                .tag(1)
             SettingsView()
                 .tabItem { Label("Ajustes", systemImage: "gearshape.fill") }
+                .tag(2)
         }
         .environmentObject(session)
         .tint(ORTATheme.accent)
