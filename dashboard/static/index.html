@@ -29,7 +29,12 @@
       </div>
     </header>
 
-    <main>
+    <nav class="app-tabs" role="tablist" aria-label="Vistas">
+      <button type="button" class="app-tab active" role="tab" aria-selected="true" data-tab="dash" id="tab-btn-dash">Dashboard operativo</button>
+      <button type="button" class="app-tab" role="tab" aria-selected="false" data-tab="coach" id="tab-btn-coach">Mapa de coaching</button>
+    </nav>
+
+    <main id="panel-dash">
       <section class="kpi-grid" id="kpi-grid"></section>
 
       <section class="card">
@@ -142,6 +147,23 @@
             <thead><tr id="mix-head"></tr></thead>
             <tbody id="mix-body"></tbody>
           </table>
+        </div>
+      </section>
+    </main>
+
+    <main id="panel-coach" class="hidden" aria-hidden="true">
+      <section class="card">
+        <div class="card-header">
+          <h2>Mapa de coaching por ruta</h2>
+        </div>
+        <p class="muted small">
+          La <strong>ruta</strong> y el <strong>camión</strong> son los mismos selectores del encabezado (y el filtro “Since”).
+          La telemetría mostrada es la <strong>mediana por segmento</strong> sobre los viajes simulados disponibles;
+          las recomendaciones aplican reglas tipo IF sobre pendiente, congestión, viento y lluvia (mismo criterio que el prototipo Folium de la branch bibi).
+        </p>
+        <div class="coaching-wrap">
+          <div id="map-coaching"></div>
+          <div id="coaching-legend" class="coaching-legend" aria-live="polite"></div>
         </div>
       </section>
     </main>

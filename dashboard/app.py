@@ -25,6 +25,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .clustering import compute_route_clusters
+from .route_coach import build_coaching_payload
 
 ROOT = Path(__file__).resolve().parent.parent
 ROUTES_DIR = ROOT / "output" / "routes"
@@ -518,6 +519,23 @@ def route_map(
         "distance_km": (meta.get("total_distance_m") or 0) / 1000.0
             if meta.get("total_distance_m") is not None else meta.get("distance_km"),
     }
+
+
+@app.get("/api/route/coaching")
+def route_coaching(
+    route: str | None = Query(None),
+    truck: str | None = Query(None),
+    since: str | None = Query(None),
+) -> dict[str, Any]:
+    """Route geometry + median trip telemetry + rule-based recommendations (IF coach)."""
+    rs, ts = _resolve_selection(route, truck)
+    data = load_data(rs, ts, since)
+    payload = build_coaching_payload(
+        data["route_meta"], data["route_df"], data["trips"]
+    )
+    payload["route"] = rs
+    payload["truck"] = ts
+    return payload
 
 
 @app.get("/api/anomalies")

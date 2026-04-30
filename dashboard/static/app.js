@@ -4,6 +4,8 @@ const state = {
   truck: null,
   since: null,
   mapInstance: null,
+  coachingMap: null,
+  activeTab: "dash",
   hotspotMarker: null,
   driverChart: null,
   anomChart: null,
@@ -81,6 +83,181 @@ function bindControls() {
     state.since = e.target.value || null;
   });
   document.getElementById("apply-btn").addEventListener("click", renderAll);
+  bindTabs();
+}
+
+function bindTabs() {
+  document.querySelectorAll(".app-tab").forEach(btn => {
+    btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
+  });
+}
+
+function setActiveTab(tab) {
+  state.activeTab = tab;
+  const dash = document.getElementById("panel-dash");
+  const coach = document.getElementById("panel-coach");
+  document.querySelectorAll(".app-tab").forEach(b => {
+    const on = b.dataset.tab === tab;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  if (tab === "dash") {
+    dash.classList.remove("hidden");
+    coach.classList.add("hidden");
+    coach.setAttribute("aria-hidden", "true");
+    dash.removeAttribute("aria-hidden");
+    requestAnimationFrame(() => state.mapInstance?.invalidateSize?.());
+  } else {
+    coach.classList.remove("hidden");
+    dash.classList.add("hidden");
+    coach.setAttribute("aria-hidden", "false");
+    dash.setAttribute("aria-hidden", "true");
+    renderCoachingMap().then(() => {
+      requestAnimationFrame(() => state.coachingMap?.invalidateSize?.());
+    });
+  }
+}
+
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function coachingPopupHtml(s) {
+  let h = `<b>Segmento ${s.seg_idx}</b><br>`;
+  h += `Distancia: ${fmtInt(s.length_m)} m<br>`;
+  h += `Pendiente: ${fmt(s.slope_pct, 2)}%<br>`;
+  if (s.altitude_start_m != null && s.altitude_end_m != null) {
+    h += `Altura: ${fmt(s.altitude_start_m, 1)} → ${fmt(s.altitude_end_m, 1)} m<br>`;
+  }
+  if (s.eta_offset_min != null) {
+    h += `ETA: +${fmt(s.eta_offset_min, 1)} min<br>`;
+  }
+  h += `<b>Clima:</b> ${fmt(s.ambient_temp_c, 1)}°C | Viento: ${fmt(s.wind_speed_ms, 1)} m/s | Lluvia: ${fmt(s.precip_mmph, 1)} mm/h<br>`;
+  if (s.recommendation_action !== "KEEP") {
+    h += `<b>Recomendación:</b> ${escapeHtml(s.recommendation_message)}<br>`;
+    h += `<i>Base científica:</i> ${escapeHtml(s.recommendation_science)}<br>`;
+    h += `Ahorro est.: ${Math.round((s.recommendation_savings || 0) * 100)}% | ${fmt(s.speed_kmh, 1)} km/h | ${fmtInt(s.rpm)} RPM`;
+  } else {
+    h += `<span style="opacity:0.75">${escapeHtml(s.recommendation_message)}</span>`;
+  }
+  return h;
+}
+
+async function renderCoachingMap() {
+  const legend = document.getElementById("coaching-legend");
+  if (!state.route || !state.truck) {
+    if (legend) legend.textContent = "Selecciona ruta y camión.";
+    return;
+  }
+  if (state.coachingMap) {
+    state.coachingMap.remove();
+    state.coachingMap = null;
+  }
+  let data;
+  try {
+    data = await api("/route/coaching");
+  } catch (e) {
+    console.error(e);
+    if (legend) legend.innerHTML = "<b>Error</b> al cargar coaching (¿hay simulaciones para esta ruta?).";
+    return;
+  }
+  const leg = data.legend || { label: "Pendiente (%)", min: -8, max: 8 };
+  if (data.empty || !(data.segments && data.segments.length)) {
+    if (legend) {
+      legend.innerHTML = "<b>Sin geometría</b> para esta ruta o faltan columnas en <code>route.parquet</code>.";
+    }
+    return;
+  }
+  if (legend) {
+    const km = data.total_distance_km != null ? `${fmt(data.total_distance_km, 1)} km` : "—";
+    const n = data.n_segments != null ? data.n_segments : data.segments.length;
+    legend.innerHTML =
+      `<b>${escapeHtml(leg.label)}</b><br>` +
+      `${fmt(leg.min, 1)} → ${fmt(leg.max, 1)}<br>` +
+      `Ruta: ${escapeHtml(data.origin_query || "")} → ${escapeHtml(data.destination_query || "")}<br>` +
+      `${km} · ${n} segmentos<br>` +
+      `<span style="opacity:0.8;font-size:11px">Marcadores: rojo congestión, negro pendiente fuerte; iconos clima cada 20 segmentos si lluvia/viento.</span>`;
+  }
+
+  const map = L.map("map-coaching", { zoomControl: true });
+  state.coachingMap = map;
+
+  const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap",
+    maxZoom: 19,
+  });
+  const topo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+    attribution: 'Map data: © <a href="https://openstreetmap.org">OSM</a> contributors, <a href="https://opentopomap.org">OpenTopoMap</a>',
+    maxZoom: 17,
+  });
+  topo.addTo(map);
+  L.control.layers({ "OpenStreetMap": osm, "Topográfico (OpenTopoMap)": topo }, {}).addTo(map);
+
+  const bounds = [];
+  for (const s of data.segments) {
+    L.polyline(
+      [[s.start_lat, s.start_lon], [s.end_lat, s.end_lon]],
+      { color: s.color || "#3388ff", weight: s.weight || 4, opacity: 0.92 }
+    )
+      .addTo(map)
+      .bindPopup(coachingPopupHtml(s));
+    bounds.push([s.start_lat, s.start_lon], [s.end_lat, s.end_lon]);
+
+    if (s.alerts && s.alerts.includes("traffic")) {
+      L.circleMarker([s.start_lat, s.start_lon], {
+        radius: 6,
+        color: "#ef4444",
+        weight: 2,
+        fillColor: "#ef4444",
+        fillOpacity: 0.75,
+      })
+        .addTo(map)
+        .bindTooltip("Congestión alta", { sticky: true });
+    } else if (s.alerts && s.alerts.includes("steep_slope")) {
+      L.circleMarker([s.start_lat, s.start_lon], {
+        radius: 6,
+        color: "#111827",
+        weight: 2,
+        fillColor: "#111827",
+        fillOpacity: 0.75,
+      })
+        .addTo(map)
+        .bindTooltip("Pendiente fuerte", { sticky: true });
+    }
+
+    if (s.show_weather_marker) {
+      const rainy = (s.precip_mmph || 0) > 0.5;
+      const icon = L.divIcon({
+        className: "wx-icon",
+        html: rainy ? "🌧" : "🌬",
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+      L.marker([s.start_lat, s.start_lon], { icon })
+        .addTo(map)
+        .bindTooltip(rainy ? `Lluvia: ${fmt(s.precip_mmph, 1)} mm/h` : `Viento: ${fmt(s.wind_speed_ms, 1)} m/s`, { sticky: true });
+    }
+  }
+
+  if (data.origin) {
+    L.marker([data.origin.lat, data.origin.lon], { title: data.origin.label })
+      .addTo(map)
+      .bindPopup(`Origen: ${escapeHtml(data.origin.label || "")}`);
+  }
+  if (data.destination) {
+    L.marker([data.destination.lat, data.destination.lon], { title: data.destination.label })
+      .addTo(map)
+      .bindPopup(`Destino: ${escapeHtml(data.destination.label || "")}`);
+  }
+
+  if (bounds.length) {
+    map.fitBounds(bounds, { padding: [24, 24] });
+  }
 }
 
 // ---------------- Renderers ----------------
@@ -497,14 +674,18 @@ function hexToRgb(hex) {
 async function renderAll() {
   if (!state.route || !state.truck) return;
   try {
-    await Promise.all([
+    const tasks = [
       renderOverview(),
       renderMap(),
       renderDrivers(),
       renderTrucks(),
       renderIdleAndAnomalies(),
       renderClusters(),
-    ]);
+    ];
+    if (state.activeTab === "coach") {
+      tasks.push(renderCoachingMap());
+    }
+    await Promise.all(tasks);
   } catch (e) {
     console.error(e);
   }
