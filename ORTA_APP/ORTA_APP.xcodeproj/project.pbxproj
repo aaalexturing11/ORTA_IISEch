@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7111D78E2FA3369B00682E1F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		7111D78E2FA3369B00682E1F /* Exceptions for "ORTA_APP" folder in "ORTA_APP" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,11 +24,7 @@
 		7111D7822FA3369A00682E1F /* ORTA_APP */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				7111D78E2FA3369B00682E1F /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
+				7111D78E2FA3369B00682E1F /* Exceptions for "ORTA_APP" folder in "ORTA_APP" target */,
 			);
 			path = ORTA_APP;
 			sourceTree = "<group>";
@@ -271,7 +267,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YY8T42Y3HN;
 				ENABLE_PREVIEWS = YES;
@@ -287,8 +282,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "tec.ORTA-APP";
+				PRODUCT_BUNDLE_IDENTIFIER = tec.ortaapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -301,7 +297,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YY8T42Y3HN;
 				ENABLE_PREVIEWS = YES;
@@ -317,8 +312,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "tec.ORTA-APP";
+				PRODUCT_BUNDLE_IDENTIFIER = tec.ortaapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
