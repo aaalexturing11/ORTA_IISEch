@@ -1,0 +1,22 @@
+{
+  "route_id": "1583000d4830",
+  "origin_query": "Puebla, MX",
+  "destination_query": "Cuautitlan, MX",
+  "origin": [
+    18.833333,
+    -98.0
+  ],
+  "destination": [
+    19.7055182,
+    -99.1666257
+  ],
+  "departure_iso": "2026-04-30T02:09:12.102260+00:00",
+  "segment_length_m": 200.0,
+  "total_distance_m": 210515,
+  "total_duration_s": 11593.1,
+  "n_segments": 1054,
+  "routing_provider": "OSRM (public demo)",
+  "elevation_provider": "Open-Topo-Data SRTM 30m",
+  "traffic_provider": null,
+  "generated_at": "2026-04-30T02:09:36.361762+00:00"
+}
