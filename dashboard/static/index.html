@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Heavy Truck Ops Dashboard</title>
+  <title>Tablero de Operación de Camiones Pesados</title>
   <link rel="stylesheet" href="/static/style.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -12,40 +12,40 @@
   <div class="page">
     <header class="topbar">
       <div class="brand">
-        <h1>Heavy Truck Ops</h1>
-        <p id="subtitle" class="muted">Select a route to begin.</p>
+        <h1>Operación de Camiones Pesados</h1>
+        <p id="subtitle" class="muted">Selecciona una ruta para comenzar.</p>
       </div>
       <div class="controls">
-        <label>Route
+        <label>Ruta
           <select id="route-select"></select>
         </label>
-        <label>Truck
+        <label>Camión
           <select id="truck-select"></select>
         </label>
-        <label>Since
+        <label>Desde
           <input type="date" id="since-input" />
         </label>
-        <button id="apply-btn" type="button">Apply</button>
+        <button id="apply-btn" type="button">Aplicar</button>
       </div>
     </header>
 
     <nav class="app-tabs" role="tablist" aria-label="Vistas">
-      <button type="button" class="app-tab active" role="tab" aria-selected="true" data-tab="dash" id="tab-btn-dash">Dashboard operativo</button>
-      <button type="button" class="app-tab" role="tab" aria-selected="false" data-tab="coach" id="tab-btn-coach">Mapa de coaching</button>
+      <button type="button" class="app-tab active" role="tab" aria-selected="true" data-tab="dash" id="tab-btn-dash">Tablero operativo</button>
+      <button type="button" class="app-tab" role="tab" aria-selected="false" data-tab="coach" id="tab-btn-coach">Mapa de recomendaciones</button>
     </nav>
 
     <main id="panel-dash">
       <section class="kpi-grid" id="kpi-grid"></section>
 
       <section class="card">
-        <div class="card-header"><h2>Route &amp; Fuel Hotspots</h2></div>
+        <div class="card-header"><h2>Ruta y zonas de mayor consumo</h2></div>
         <div class="row">
           <div><div id="map"></div></div>
           <div class="hotspots">
-            <h3>Top fuel-burn segments</h3>
-            <p class="muted small">Click a row to fly the map there.</p>
+            <h3>Tramos con mayor consumo de combustible</h3>
+            <p class="muted small">Haz clic en una fila para ubicarla en el mapa.</p>
             <table class="data-table">
-              <thead><tr><th>Seg</th><th>L/km</th><th>Avg kph</th><th>Slope %</th></tr></thead>
+              <thead><tr><th>Tramo</th><th>L/km</th><th>Velocidad prom. (km/h)</th><th>Pendiente %</th></tr></thead>
               <tbody id="hotspots-body"></tbody>
             </table>
           </div>
@@ -53,16 +53,16 @@
       </section>
 
       <section class="card">
-        <div class="card-header"><h2>Drivers — composite ranking</h2></div>
+        <div class="card-header"><h2>Conductores — calificación general</h2></div>
         <p class="muted small" id="driver-baselines"></p>
         <div class="row">
           <div class="chart-box"><canvas id="driver-chart"></canvas></div>
           <div>
             <table class="data-table">
               <thead><tr>
-                <th>#</th><th>Driver</th><th>Score</th>
-                <th>L/100km</th><th>Excess L</th>
-                <th>Idle h</th><th>Excess idle h</th>
+                <th>#</th><th>Conductor</th><th>Puntaje</th>
+                <th>L/100 km</th><th>Litros en exceso</th>
+                <th>Horas en ralentí</th><th>Horas de ralentí en exceso</th>
               </tr></thead>
               <tbody id="drivers-body"></tbody>
             </table>
@@ -71,44 +71,44 @@
       </section>
 
       <section class="card">
-        <div class="card-header"><h2>Truck</h2></div>
+        <div class="card-header"><h2>Camión</h2></div>
         <table class="data-table">
-          <thead><tr><th>Spec</th><th>Value</th></tr></thead>
+          <thead><tr><th>Característica</th><th>Valor</th></tr></thead>
           <tbody id="trucks-body"></tbody>
         </table>
       </section>
 
       <section class="card">
-        <div class="card-header"><h2>Idle &amp; Anomalies</h2></div>
+        <div class="card-header"><h2>Tiempo en ralentí y anomalías</h2></div>
         <div class="row">
           <div>
-            <h3 class="sub-h">Idle hours per driver</h3>
+            <h3 class="sub-h">Horas en ralentí por conductor</h3>
             <p class="muted small" id="idle-baseline"></p>
             <table class="data-table">
-              <thead><tr><th>Driver</th><th>Idle h</th><th>h/100km</th><th>Excess h</th></tr></thead>
+              <thead><tr><th>Conductor</th><th>Horas en ralentí</th><th>h/100 km</th><th>Horas en exceso</th></tr></thead>
               <tbody id="idle-body"></tbody>
             </table>
           </div>
           <div>
-            <h3 class="sub-h">Anomalies by type</h3>
+            <h3 class="sub-h">Anomalías por tipo</h3>
             <p class="muted small" id="anom-summary"></p>
             <div class="chart-box short"><canvas id="anom-chart"></canvas></div>
-            <h3 class="sub-h" style="margin-top:14px">Per-driver breakdown</h3>
+            <h3 class="sub-h" style="margin-top:14px">Desglose por conductor</h3>
             <table class="data-table" id="anom-by-driver">
               <thead><tr id="anom-driver-head"></tr></thead>
               <tbody id="anom-driver-body"></tbody>
             </table>
             <div class="recent-header">
-              <h3 class="sub-h" style="margin:0">Most recent events</h3>
+              <h3 class="sub-h" style="margin:0">Eventos más recientes</h3>
               <div class="recent-filters">
-                <select id="anom-filter-kind"><option value="">All kinds</option></select>
-                <select id="anom-filter-driver"><option value="">All drivers</option></select>
+                <select id="anom-filter-kind"><option value="">Todos los tipos</option></select>
+                <select id="anom-filter-driver"><option value="">Todos los conductores</option></select>
                 <span class="muted small" id="anom-recent-count"></span>
               </div>
             </div>
             <div class="scroll-table">
               <table class="data-table compact">
-                <thead><tr><th>When</th><th>Driver</th><th>Kind</th><th>Seg</th><th>Detail</th></tr></thead>
+                <thead><tr><th>Cuándo</th><th>Conductor</th><th>Tipo</th><th>Tramo</th><th>Detalle</th></tr></thead>
                 <tbody id="anom-recent-body"></tbody>
               </table>
             </div>
@@ -118,30 +118,30 @@
 
       <section class="card">
         <div class="card-header">
-          <h2>Driving styles — UMAP clusters</h2>
+          <h2>Estilos de manejo — grupos de conductores</h2>
           <span class="muted small" id="cluster-meta"></span>
         </div>
         <p class="muted small">
-          Each trip is reduced to a 5-D UMAP embedding of route-invariant
-          driving features, then grouped with Ward agglomerative clustering.
-          Cluster count is picked by silhouette with safeguards. Aggregated
-          across both trucks for this route.
+          Cada viaje se resume con un modelo (UMAP) que toma características del manejo
+          independientes de la ruta, y luego se agrupan los viajes parecidos
+          (agrupamiento jerárquico de Ward). El número de grupos se elige automáticamente
+          buscando la separación más clara entre estilos. Se combinan ambos camiones de esta ruta.
         </p>
         <div class="row">
           <div class="chart-box"><canvas id="cluster-scatter"></canvas></div>
           <div>
-            <h3 class="sub-h">Clusters</h3>
+            <h3 class="sub-h">Grupos de estilo</h3>
             <table class="data-table" id="cluster-table">
               <thead><tr>
-                <th>#</th><th>Style</th><th>Trips</th><th>Drivers</th>
-                <th>Speed ratio</th><th>L/100km</th><th>Idle %</th><th>Harsh /100km</th>
+                <th>#</th><th>Estilo</th><th>Viajes</th><th>Conductores</th>
+                <th>Velocidad relativa</th><th>L/100 km</th><th>% en ralentí</th><th>Eventos bruscos /100 km</th>
               </tr></thead>
               <tbody id="cluster-body"></tbody>
             </table>
           </div>
         </div>
-        <h3 class="sub-h" style="margin-top:14px">Driver style mix</h3>
-        <p class="muted small">Share of each driver's trips that fall into each cluster (0–1).</p>
+        <h3 class="sub-h" style="margin-top:14px">Mezcla de estilos por conductor</h3>
+        <p class="muted small">Porcentaje de viajes de cada conductor que cae en cada estilo (0–100%).</p>
         <div style="overflow-x:auto">
           <table class="data-table" id="mix-table">
             <thead><tr id="mix-head"></tr></thead>
@@ -154,12 +154,12 @@
     <main id="panel-coach" class="hidden" aria-hidden="true">
       <section class="card">
         <div class="card-header">
-          <h2>Mapa de coaching por ruta</h2>
+          <h2>Mapa de recomendaciones por ruta</h2>
         </div>
         <p class="muted small">
-          La <strong>ruta</strong> y el <strong>camión</strong> son los mismos selectores del encabezado (y el filtro “Since”).
-          La telemetría mostrada es la <strong>mediana por segmento</strong> sobre los viajes simulados disponibles;
-          las recomendaciones aplican reglas tipo IF sobre pendiente, congestión, viento y lluvia (mismo criterio que el prototipo Folium de la branch bibi).
+          La <strong>ruta</strong> y el <strong>camión</strong> usan los mismos selectores del encabezado (y el filtro “Desde”).
+          La información mostrada es el <strong>valor típico de cada tramo</strong> con base en los viajes simulados disponibles;
+          las recomendaciones se calculan con reglas sencillas sobre pendiente, tráfico, viento y lluvia.
         </p>
         <div class="coaching-wrap">
           <div id="map-coaching"></div>

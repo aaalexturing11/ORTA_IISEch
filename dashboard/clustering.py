@@ -104,22 +104,22 @@ def _label_for_centroid(c: dict) -> str:
     fuel = c.get("fuel_per_100km", 0)
     bits = []
     if sr >= 1.05:
-        bits.append("fast")
+        bits.append("rápido")
     elif sr <= 0.95:
-        bits.append("slow")
+        bits.append("lento")
     else:
-        bits.append("steady")
+        bits.append("constante")
     if harsh >= 8:
-        bits.append("aggressive")
+        bits.append("agresivo")
     elif harsh <= 2:
-        bits.append("smooth")
+        bits.append("suave")
     if idle >= 0.30:
-        bits.append("high-idle")
+        bits.append("mucho ralentí")
     if fuel >= 35:
-        bits.append("thirsty")
+        bits.append("alto consumo")
     elif fuel <= 22:
-        bits.append("efficient")
-    return "-".join(bits) or "mixed"
+        bits.append("eficiente")
+    return ", ".join(bits) or "mixto"
 
 
 # --------------------------------------------------------------------------

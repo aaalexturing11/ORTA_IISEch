@@ -58,7 +58,7 @@ function populateTrucks() {
   for (const t of route.trucks) {
     const opt = document.createElement("option");
     opt.value = t.slug;
-    opt.textContent = `${t.label} (${t.n_trips} trips)`;
+    opt.textContent = `${t.label} (${t.n_trips} viajes)`;
     sel.appendChild(opt);
   }
   if (route.trucks.length) {
@@ -180,8 +180,8 @@ async function renderCoachingMap() {
       `<b>${escapeHtml(leg.label)}</b><br>` +
       `${fmt(leg.min, 1)} → ${fmt(leg.max, 1)}<br>` +
       `Ruta: ${escapeHtml(data.origin_query || "")} → ${escapeHtml(data.destination_query || "")}<br>` +
-      `${km} · ${n} segmentos<br>` +
-      `<span style="opacity:0.8;font-size:11px">Marcadores: rojo congestión, negro pendiente fuerte; iconos clima cada 20 segmentos si lluvia/viento.</span>`;
+      `${km} · ${n} tramos<br>` +
+      `<span style="opacity:0.8;font-size:11px">Marcadores: rojo = tráfico pesado, negro = pendiente fuerte; íconos de clima cada 20 tramos cuando hay lluvia o viento.</span>`;
   }
 
   const map = L.map("map-coaching", { zoomControl: true });
@@ -196,7 +196,7 @@ async function renderCoachingMap() {
     maxZoom: 17,
   });
   topo.addTo(map);
-  L.control.layers({ "OpenStreetMap": osm, "Topográfico (OpenTopoMap)": topo }, {}).addTo(map);
+  L.control.layers({ "Mapa de calles (OpenStreetMap)": osm, "Mapa topográfico (OpenTopoMap)": topo }, {}).addTo(map);
 
   const bounds = [];
   for (const s of data.segments) {
@@ -217,7 +217,7 @@ async function renderCoachingMap() {
         fillOpacity: 0.75,
       })
         .addTo(map)
-        .bindTooltip("Congestión alta", { sticky: true });
+        .bindTooltip("Tráfico pesado", { sticky: true });
     } else if (s.alerts && s.alerts.includes("steep_slope")) {
       L.circleMarker([s.start_lat, s.start_lon], {
         radius: 6,
@@ -265,18 +265,18 @@ async function renderOverview() {
   const k = await api("/kpis");
   const route = state.routes.find(r => r.slug === state.route);
   document.getElementById("subtitle").textContent =
-    route ? `${route.origin} → ${route.destination} · ${fmt(route.distance_km, 0)} km · ${k.n_trips ?? 0} trips` : "";
+    route ? `${route.origin} → ${route.destination} · ${fmt(route.distance_km, 0)} km · ${k.n_trips ?? 0} viajes` : "";
   const grid = document.getElementById("kpi-grid");
   grid.innerHTML = "";
   if (k.empty) {
-    grid.innerHTML = `<div class="kpi"><span class="kpi-label">No trips for selection</span></div>`;
+    grid.innerHTML = `<div class="kpi"><span class="kpi-label">Sin viajes para esta selección</span></div>`;
     return;
   }
   const tiles = [
-    { label: "Fuel efficiency", value: fmt(k.fuel_l_per_100km, 1), unit: "L/100km" },
-    { label: "Utilization", value: fmt(k.utilization_pct, 1), unit: "%" },
-    { label: "CO₂ intensity", value: fmt(k.co2_kg_per_km, 2), unit: "kg/km" },
-    { label: "Avg speed", value: fmt(k.avg_speed_kph, 1), unit: "kph" },
+    { label: "Eficiencia de combustible", value: fmt(k.fuel_l_per_100km, 1), unit: "L/100 km" },
+    { label: "Aprovechamiento de carga", value: fmt(k.utilization_pct, 1), unit: "%" },
+    { label: "Emisiones de CO₂", value: fmt(k.co2_kg_per_km, 2), unit: "kg/km" },
+    { label: "Velocidad promedio", value: fmt(k.avg_speed_kph, 1), unit: "km/h" },
   ];
   for (const t of tiles) {
     const el = document.createElement("div");
@@ -322,8 +322,8 @@ async function renderMap() {
       color: colorForFuel(a.fuel_per_km_l, fmin, fmax), weight: 4, opacity: 0.9,
     }).addTo(map);
   }
-  if (m.origin) L.marker([m.origin.lat, m.origin.lon]).addTo(map).bindPopup("Origin");
-  if (m.destination) L.marker([m.destination.lat, m.destination.lon]).addTo(map).bindPopup("Destination");
+  if (m.origin) L.marker([m.origin.lat, m.origin.lon]).addTo(map).bindPopup("Origen");
+  if (m.destination) L.marker([m.destination.lat, m.destination.lon]).addTo(map).bindPopup("Destino");
   map.fitBounds([[Math.min(...lats), Math.min(...lons)], [Math.max(...lats), Math.max(...lons)]]);
 
   const seg = await api("/route/segments", { top: 12 });
@@ -355,8 +355,8 @@ function focusHotspot(h) {
     fillOpacity: 0.45,
   }).addTo(map);
   marker.bindPopup(
-    `<b>Segment ${h.seg_idx}</b><br>${fmt(h.fuel_per_km_l, 3)} L/km` +
-    `<br>${fmt(h.avg_speed, 1)} kph · slope ${fmt(h.slope_pct, 2)}%`
+    `<b>Tramo ${h.seg_idx}</b><br>${fmt(h.fuel_per_km_l, 3)} L/km` +
+    `<br>${fmt(h.avg_speed, 1)} km/h · pendiente ${fmt(h.slope_pct, 2)}%`
   ).openPopup();
   state.hotspotMarker = marker;
 }
@@ -365,7 +365,7 @@ async function renderDrivers() {
   const d = await api("/drivers");
   const drivers = d.drivers || [];
   document.getElementById("driver-baselines").textContent =
-    `Baselines from data: best fuel ${fmt(d.baseline_fuel_l_per_100km, 1)} L/100km · best idle ${fmt(d.baseline_idle_h_per_100km, 3)} h/100km`;
+    `Referencias del histórico: mejor consumo ${fmt(d.baseline_fuel_l_per_100km, 1)} L/100 km · menor ralentí ${fmt(d.baseline_idle_h_per_100km, 3)} h/100 km`;
   const tbody = document.getElementById("drivers-body");
   tbody.innerHTML = "";
   for (const r of drivers) {
@@ -391,7 +391,7 @@ async function renderDrivers() {
     data: {
       labels: sorted.map(r => r.driver_name),
       datasets: [{
-        label: "Composite score",
+        label: "Puntaje general",
         data: sorted.map(r => r.score),
         backgroundColor: colors,
         borderColor: colors,
@@ -429,16 +429,16 @@ async function renderTrucks() {
   const truck = t.truck || {};
   const stats = t.stats || {};
   const rows = [
-    ["Model", truck.model_name],
-    ["Engine", truck.engine_model],
-    ["GCW kg", truck.gross_combined_weight_kg],
-    ["Tractor mass kg", truck.tractor_mass_kg],
-    ["Trailer mass kg", truck.trailer_mass_kg],
-    ["Fleet trips", stats.n_trips],
-    ["Fleet km", fmt(stats.distance_km, 0)],
-    ["Fleet L/100km", fmt(stats.fuel_l_per_100km, 1)],
-    ["Avg kph", fmt(stats.avg_speed_kph, 1)],
-    ["Harsh B / A", `${fmtInt(stats.harsh_brakes)} / ${fmtInt(stats.harsh_accels)}`],
+    ["Modelo", truck.model_name],
+    ["Motor", truck.engine_model],
+    ["Peso bruto combinado (kg)", truck.gross_combined_weight_kg],
+    ["Masa del tractor (kg)", truck.tractor_mass_kg],
+    ["Masa del remolque (kg)", truck.trailer_mass_kg],
+    ["Viajes registrados", stats.n_trips],
+    ["Kilómetros recorridos", fmt(stats.distance_km, 0)],
+    ["Consumo promedio (L/100 km)", fmt(stats.fuel_l_per_100km, 1)],
+    ["Velocidad promedio (km/h)", fmt(stats.avg_speed_kph, 1)],
+    ["Frenadas / aceleraciones bruscas", `${fmtInt(stats.harsh_brakes)} / ${fmtInt(stats.harsh_accels)}`],
   ];
   for (const [k, v] of rows) {
     const tr = document.createElement("tr");
@@ -450,7 +450,7 @@ async function renderTrucks() {
 async function renderIdleAndAnomalies() {
   const [idle, an] = await Promise.all([api("/idle"), api("/anomalies")]);
   document.getElementById("idle-baseline").textContent =
-    `Baseline idle: ${fmt(idle.baseline_idle_h_per_100km, 3)} h/100km · total idle ${fmt(idle.total_idle_h, 1)} h`;
+    `Ralentí de referencia: ${fmt(idle.baseline_idle_h_per_100km, 3)} h/100 km · ralentí total: ${fmt(idle.total_idle_h, 1)} h`;
   const it = document.getElementById("idle-body"); it.innerHTML = "";
   for (const r of idle.by_driver || []) {
     const tr = document.createElement("tr");
@@ -462,11 +462,11 @@ async function renderIdleAndAnomalies() {
 }
 
 const KIND_LABELS = {
-  fuel_theft: "Fuel theft",
-  sensor_dropout: "Sensor dropout",
-  overheat: "Overheat",
-  tire_leak: "Tire leak",
-  harsh_cluster: "Harsh-event cluster",
+  fuel_theft: "Robo de combustible",
+  sensor_dropout: "Falla de sensor",
+  overheat: "Sobrecalentamiento",
+  tire_leak: "Fuga en llanta",
+  harsh_cluster: "Maniobras bruscas seguidas",
 };
 const KIND_COLORS = {
   fuel_theft: "#f87171",
@@ -482,7 +482,7 @@ function renderAnomalies(an) {
   const byKind = an.by_kind || [];
   const total = an.total || byKind.reduce((s, r) => s + r.count, 0);
   document.getElementById("anom-summary").textContent =
-    total ? `${total} events across ${byKind.length} kinds` : "No anomalies for this selection.";
+    total ? `${total} eventos en ${byKind.length} tipos` : "Sin anomalías para esta selección.";
 
   const ctx = document.getElementById("anom-chart");
   if (state.anomChart) state.anomChart.destroy();
@@ -509,7 +509,7 @@ function renderAnomalies(an) {
 
   const kinds = an.kinds || byKind.map(r => r.kind);
   const head = document.getElementById("anom-driver-head");
-  head.innerHTML = `<th>Driver</th>` + kinds.map(k =>
+  head.innerHTML = `<th>Conductor</th>` + kinds.map(k =>
     `<th title="${k}">${kindLabel(k)}</th>`).join("") + `<th>Total</th>`;
   const body = document.getElementById("anom-driver-body");
   body.innerHTML = "";
@@ -531,9 +531,9 @@ function renderAnomalies(an) {
   const prevDrv = drvSel.value;
   const kindsAll = an.kinds || [...new Set(recent.map(r => r.kind))];
   const drivers = [...new Set(recent.map(r => r.driver_name).filter(Boolean))].sort();
-  kindSel.innerHTML = `<option value="">All kinds</option>` +
+  kindSel.innerHTML = `<option value="">Todos los tipos</option>` +
     kindsAll.map(k => `<option value="${k}">${kindLabel(k)}</option>`).join("");
-  drvSel.innerHTML = `<option value="">All drivers</option>` +
+  drvSel.innerHTML = `<option value="">Todos los conductores</option>` +
     drivers.map(d => `<option value="${d}">${d}</option>`).join("");
   if (kindsAll.includes(prevKind)) kindSel.value = prevKind;
   if (drivers.includes(prevDrv)) drvSel.value = prevDrv;
@@ -574,7 +574,7 @@ async function renderClusters() {
   catch (e) { console.warn("clusters", e); return; }
 
   document.getElementById("cluster-meta").textContent =
-    `k=${data.k} \u00b7 silhouette ${fmt(data.silhouette, 3)} \u00b7 ${data.n_trips} trips, ${data.n_drivers} drivers`;
+    `${data.k} grupos \u00b7 calidad de separación ${fmt(data.silhouette, 3)} \u00b7 ${data.n_trips} viajes, ${data.n_drivers} conductores`;
 
   // Scatter: trips colored by cluster
   const groups = new Map();
@@ -588,7 +588,7 @@ async function renderClusters() {
   const datasets = [...groups.entries()]
     .sort((a, b) => a[0] - b[0])
     .map(([cid, pts]) => ({
-      label: `${cid} \u00b7 ${labelByCluster[cid] || "cluster"}`,
+      label: `Grupo ${cid} \u00b7 ${labelByCluster[cid] || "estilo"}`,
       data: pts,
       backgroundColor: clusterColor(cid),
       borderColor: clusterColor(cid),
@@ -608,14 +608,14 @@ async function renderClusters() {
           callbacks: {
             label: ctx => {
               const m = ctx.raw._meta;
-              return `${m.driver_id} \u00b7 ${m.truck_model} \u00b7 cluster ${m.cluster}`;
+              return `Conductor ${m.driver_id} \u00b7 camión ${m.truck_model} \u00b7 grupo ${m.cluster}`;
             },
           },
         },
       },
       scales: {
-        x: { ticks: { color: "#8a93a8" }, grid: { color: "rgba(255,255,255,0.06)" }, title: { text: "UMAP-1", display: true, color: "#8a93a8" } },
-        y: { ticks: { color: "#8a93a8" }, grid: { color: "rgba(255,255,255,0.06)" }, title: { text: "UMAP-2", display: true, color: "#8a93a8" } },
+        x: { ticks: { color: "#8a93a8" }, grid: { color: "rgba(255,255,255,0.06)" }, title: { text: "Componente 1", display: true, color: "#8a93a8" } },
+        y: { ticks: { color: "#8a93a8" }, grid: { color: "rgba(255,255,255,0.06)" }, title: { text: "Componente 2", display: true, color: "#8a93a8" } },
       },
     },
   });
@@ -643,7 +643,7 @@ async function renderClusters() {
   // Driver style mix
   const kinds = data.clusters.map(c => c.cluster);
   const head = document.getElementById("mix-head");
-  head.innerHTML = `<th>Driver</th><th>Dominant</th><th>Purity</th>` +
+  head.innerHTML = `<th>Conductor</th><th>Estilo dominante</th><th>Constancia</th>` +
     kinds.map(c => `<th><span class="cluster-dot" style="--c:${clusterColor(c)}"></span>${c}</th>`).join("");
   const mix = data.driver_cluster_mix || {};
   const profByDriver = Object.fromEntries((data.driver_profiles || []).map(p => [p.driver_id, p]));
