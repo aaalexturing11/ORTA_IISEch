@@ -1,0 +1,32 @@
+{
+  "source": "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/ContentView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Ruta",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Navegar",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ajustes",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 20
+        }
+      }
+    ]
+  },
+  "version": 1
+}

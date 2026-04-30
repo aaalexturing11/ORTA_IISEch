@@ -1,0 +1,16 @@
+{
+  "source": "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/LegalDisclaimerBanner.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Los avisos son asesoría para ahorrar combustible. Respeta límites de velocidad y señalización.",
+        "location": {
+          "startingColumn": 14,
+          "startingLine": 10
+        }
+      }
+    ]
+  },
+  "version": 1
+}

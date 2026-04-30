@@ -1,0 +1,24 @@
+{
+  "source": "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/CoachBottomCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Toca un tramo del mapa para ver pendiente, clima y recomendación.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Segmento %lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 14
+        }
+      }
+    ]
+  },
+  "version": 1
+}

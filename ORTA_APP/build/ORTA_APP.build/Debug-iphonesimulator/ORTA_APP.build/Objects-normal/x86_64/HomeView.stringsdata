@@ -1,0 +1,80 @@
+{
+  "source": "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Views/HomeView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "ORTA",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Elegí ruta y unidad; los avisos eco salen del mismo backend que el mapa de coaching.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ruta",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Camión",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ruta",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 44
+        }
+      },
+      {
+        "comment": "",
+        "key": "Camión",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "—",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "—",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Actualizar estimación de combustible",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 76
+        }
+      }
+    ]
+  },
+  "version": 1
+}

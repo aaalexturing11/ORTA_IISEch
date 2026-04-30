@@ -8,14 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var session = AppSession()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            HomeView()
+                .tabItem { Label("Ruta", systemImage: "road.lanes") }
+            DriveNavigationView()
+                .tabItem { Label("Navegar", systemImage: "location.north.line.fill") }
+            SettingsView()
+                .tabItem { Label("Ajustes", systemImage: "gearshape.fill") }
         }
-        .padding()
+        .environmentObject(session)
+        .tint(ORTATheme.accent)
+        .preferredColorScheme(.dark)
     }
 }
 

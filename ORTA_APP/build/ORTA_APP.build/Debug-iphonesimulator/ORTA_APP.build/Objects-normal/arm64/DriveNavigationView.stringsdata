@@ -1,0 +1,40 @@
+{
+  "source": "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Views/DriveNavigationView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Navegación",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Elegí ruta y camión en la pestaña inicio y tocá «Cargar mapa».",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sin ruta",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cargar mapa",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 77
+        }
+      }
+    ]
+  },
+  "version": 1
+}

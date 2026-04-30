@@ -1,0 +1,136 @@
+//
+//  ORTAAPIModels.swift
+//  ORTA_APP
+//
+
+import Foundation
+import CoreLocation
+
+struct RoutesResponse: Decodable {
+    let routes: [ORTARouteSummary]
+}
+
+struct ORTARouteSummary: Decodable, Identifiable {
+    var id: String { slug }
+    let slug: String
+    let origin: String?
+    let destination: String?
+    let distanceKm: Double?
+    let trucks: [ORTATruckOption]
+
+    enum CodingKeys: String, CodingKey {
+        case slug, origin, destination, trucks
+        case distanceKm = "distance_km"
+    }
+}
+
+struct ORTATruckOption: Decodable, Identifiable {
+    var id: String { slug }
+    let slug: String
+    let label: String?
+    let nTrips: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case slug, label
+        case nTrips = "n_trips"
+    }
+}
+
+struct KPIsResponse: Decodable {
+    let empty: Bool?
+    let fuelLPer100km: Double?
+    let nTrips: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case empty
+        case fuelLPer100km = "fuel_l_per_100km"
+        case nTrips = "n_trips"
+    }
+}
+
+struct CoachingResponse: Decodable {
+    let empty: Bool?
+    let originQuery: String?
+    let destinationQuery: String?
+    let totalDistanceKm: Double?
+    let nSegments: Int?
+    let legend: CoachingLegend?
+    let segments: [CoachingSegment]
+    let origin: MapEndpoint?
+    let destination: MapEndpoint?
+
+    enum CodingKeys: String, CodingKey {
+        case empty
+        case originQuery = "origin_query"
+        case destinationQuery = "destination_query"
+        case totalDistanceKm = "total_distance_km"
+        case nSegments = "n_segments"
+        case legend, segments, origin, destination
+    }
+}
+
+struct CoachingLegend: Decodable {
+    let label: String?
+    let min: Double?
+    let max: Double?
+}
+
+struct MapEndpoint: Decodable {
+    let lat: Double
+    let lon: Double
+    let label: String?
+}
+
+struct CoachingSegment: Decodable, Identifiable {
+    var id: Int { segIdx }
+
+    let segIdx: Int
+    let startLat: Double
+    let startLon: Double
+    let endLat: Double
+    let endLon: Double
+    let lengthM: Double
+    let slopePct: Double
+    let color: String?
+    let weight: Double?
+    let ambientTempC: Double?
+    let windSpeedMs: Double?
+    let precipMmph: Double?
+    let speedKmh: Double?
+    let rpm: Double?
+    let recommendationAction: String?
+    let recommendationMessage: String?
+    let recommendationScience: String?
+    let recommendationSavings: Double?
+    let alerts: [String]?
+    let showWeatherMarker: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case segIdx = "seg_idx"
+        case startLat = "start_lat"
+        case startLon = "start_lon"
+        case endLat = "end_lat"
+        case endLon = "end_lon"
+        case lengthM = "length_m"
+        case slopePct = "slope_pct"
+        case color, weight
+        case ambientTempC = "ambient_temp_c"
+        case windSpeedMs = "wind_speed_ms"
+        case precipMmph = "precip_mmph"
+        case speedKmh = "speed_kmh"
+        case rpm
+        case recommendationAction = "recommendation_action"
+        case recommendationMessage = "recommendation_message"
+        case recommendationScience = "recommendation_science"
+        case recommendationSavings = "recommendation_savings"
+        case alerts
+        case showWeatherMarker = "show_weather_marker"
+    }
+
+    var coordinatePair: [CLLocationCoordinate2D] {
+        [
+            CLLocationCoordinate2D(latitude: startLat, longitude: startLon),
+            CLLocationCoordinate2D(latitude: endLat, longitude: endLon),
+        ]
+    }
+}

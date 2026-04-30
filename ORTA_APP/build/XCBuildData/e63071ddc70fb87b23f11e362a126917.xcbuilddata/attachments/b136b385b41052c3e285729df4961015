@@ -1,0 +1,159 @@
+{
+  "" : {
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APP-primary.dia",
+    "emit-module-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APP-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APP-primary-emit-module.dia",
+    "pch" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APP-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APP-primary.swiftdeps"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/CoachBottomCard.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachBottomCard~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/CoachingMapView.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/CoachingMapView~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/FuelEstimateCard.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/FuelEstimateCard~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/LegalDisclaimerBanner.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/LegalDisclaimerBanner~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/ORTATheme.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTATheme~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/TurnStepsStrip.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/TurnStepsStrip~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/ContentView.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ContentView~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Models/AppSession.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/AppSession~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Models/ORTAAPIModels.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIModels~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/ORTA_APPApp.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTA_APPApp~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Services/ORTAAPIService.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/ORTAAPIService~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Views/DriveNavigationView.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/DriveNavigationView~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Views/HomeView.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/HomeView~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Views/SettingsView.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/build/ORTA_APP.build/Debug-iphonesimulator/ORTA_APP.build/Objects-normal/x86_64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

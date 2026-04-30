@@ -1,0 +1,32 @@
+{
+  "source": "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/FuelEstimateCard.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Basado en %@ L/100 km del histórico de simulaciones para esta ruta y camión.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Muestra: %lld viaje(s) en el filtro actual.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Estimación de combustible",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 27
+        }
+      }
+    ]
+  },
+  "version": 1
+}

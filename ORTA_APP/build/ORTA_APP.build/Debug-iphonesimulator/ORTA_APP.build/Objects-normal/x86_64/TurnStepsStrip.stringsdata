@@ -1,0 +1,32 @@
+{
+  "source": "/Users/alexisaguirrealanis/Documents/GitHub/ORTA_IISEch/ORTA_APP/ORTA_APP/Components/TurnStepsStrip.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Calculando indicaciones…",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 21
+        }
+      },
+      {
+        "comment": "",
+        "key": "+%lld más…",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Indicaciones (MapKit)",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 26
+        }
+      }
+    ]
+  },
+  "version": 1
+}
