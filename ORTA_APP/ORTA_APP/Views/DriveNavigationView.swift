@@ -29,6 +29,7 @@ struct DriveNavigationView: View {
     @State private var simulatedStepIndex: Int = 0
     @State private var isLoading = false
     @State private var errorText: String?
+    @StateObject private var voiceAnnouncer = NavigationVoiceAnnouncer()
     private let locationManager = CLLocationManager()
 
     private var selectedSegment: CoachingSegment? {
@@ -45,6 +46,33 @@ struct DriveNavigationView: View {
             return s
         }
         return list.min(by: { $0.segIdx < $1.segIdx })
+    }
+
+    /// Identidad estable para disparar voz cuando cambia el consejo del tramo visible.
+    private var coachingVoiceFingerprint: String {
+        guard let s = coachingSegmentForBanner else { return "" }
+        return "\(s.segIdx)|\(s.speechBriefForVoice)"
+    }
+
+    /// Incluye índice de paso MapKit para que cada avance dispare voz aunque el texto se parezca al anterior.
+    private var maneuverVoiceFingerprint: String {
+        "\(simulatedStepIndex)|\(nextStepDistanceText ?? "")|\(primaryInstruction)"
+    }
+
+    /// Tras cargar giros o activar voz, fuerza anuncio aunque la huella no haya “cambiado” en SwiftUI.
+    private func pushVoiceAfterNavigationUpdate(force: Bool) {
+        voiceAnnouncer.configure(
+            apiKey: session.resolvedElevenLabsApiKey,
+            enabled: session.voiceGuidanceEnabled
+        )
+        guard session.voiceGuidanceEnabled, session.hasElevenLabsApiKey else { return }
+        voiceAnnouncer.onManeuverChanged(
+            stepFingerprint: maneuverVoiceFingerprint,
+            distanceText: nextStepDistanceText,
+            instruction: primaryInstruction,
+            force: force
+        )
+        voiceAnnouncer.onCoachingSegmentChanged(coachingSegmentForBanner, force: force)
     }
 
     private func iconForCoachingAction(_ action: String?) -> String {
@@ -114,23 +142,38 @@ struct DriveNavigationView: View {
             }
             .background(Color.black)
             .overlay(alignment: .topTrailing) {
-                Button {
-                    Task { await loadAll() }
-                } label: {
-                    Group {
-                        if isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        } else {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.title3.weight(.semibold))
-                                .foregroundStyle(.white)
+                VStack(spacing: 10) {
+                    Button {
+                        Task { await loadAll() }
+                    } label: {
+                        Group {
+                            if isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundStyle(.white)
+                            }
                         }
+                        .frame(width: 44, height: 44)
+                        .background(.ultraThinMaterial, in: Circle())
                     }
-                    .frame(width: 44, height: 44)
-                    .background(.ultraThinMaterial, in: Circle())
+                    .disabled(!session.hasSelection || isLoading)
+
+                    if session.voiceGuidanceEnabled && session.hasElevenLabsApiKey {
+                        Button {
+                            voiceAnnouncer.replayLast()
+                        } label: {
+                            Image(systemName: "speaker.wave.3.fill")
+                                .font(.title3.weight(.semibold))
+                                .foregroundStyle(voiceAnnouncer.isSpeaking ? ORTATheme.accent : .white)
+                                .frame(width: 44, height: 44)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
+                        .accessibilityLabel("Repetir último anuncio de voz")
+                    }
                 }
-                .disabled(!session.hasSelection || isLoading)
                 .padding(.trailing, 12)
                 .padding(.top, 52)
             }
@@ -152,6 +195,42 @@ struct DriveNavigationView: View {
                 if idx == 1, session.hasSelection, coaching == nil {
                     Task { await loadAll() }
                 }
+                if idx == 1 {
+                    voiceAnnouncer.configure(
+                        apiKey: session.resolvedElevenLabsApiKey,
+                        enabled: session.voiceGuidanceEnabled
+                    )
+                    pushVoiceAfterNavigationUpdate(force: true)
+                }
+                if idx != 1 {
+                    voiceAnnouncer.interruptPlayback()
+                }
+            }
+            .onAppear {
+                voiceAnnouncer.configure(
+                    apiKey: session.resolvedElevenLabsApiKey,
+                    enabled: session.voiceGuidanceEnabled
+                )
+            }
+            .onChange(of: session.elevenLabsApiKey) { _, _ in
+                voiceAnnouncer.configure(apiKey: session.resolvedElevenLabsApiKey, enabled: session.voiceGuidanceEnabled)
+                pushVoiceAfterNavigationUpdate(force: true)
+            }
+            .onChange(of: session.voiceGuidanceEnabled) { _, new in
+                voiceAnnouncer.configure(apiKey: session.resolvedElevenLabsApiKey, enabled: new)
+                if new {
+                    pushVoiceAfterNavigationUpdate(force: true)
+                }
+            }
+            .onChange(of: maneuverVoiceFingerprint) { _, _ in
+                voiceAnnouncer.onManeuverChanged(
+                    stepFingerprint: maneuverVoiceFingerprint,
+                    distanceText: nextStepDistanceText,
+                    instruction: primaryInstruction
+                )
+            }
+            .onChange(of: coachingVoiceFingerprint) { _, _ in
+                voiceAnnouncer.onCoachingSegmentChanged(coachingSegmentForBanner)
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -249,13 +328,23 @@ struct DriveNavigationView: View {
                     .foregroundStyle(.orange)
                     .padding(.horizontal, 8)
             }
+            if let vErr = voiceAnnouncer.lastErrorDescription, !vErr.isEmpty {
+                Text(vErr)
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 10)
+            }
 
             if session.hasSelection {
-                NavigationHudBar(
-                    etaMinutes: remainingTripEtaMinutes,
-                    routeKm: remainingRouteKm,
-                    segment: coachingSegmentForBanner
-                )
+                HStack {
+                    Spacer(minLength: 0)
+                    NavigationHudBar(
+                        etaMinutes: remainingTripEtaMinutes,
+                        routeKm: remainingRouteKm,
+                        segment: coachingSegmentForBanner
+                    )
+                }
             }
 
             #if DEBUG
@@ -297,6 +386,7 @@ struct DriveNavigationView: View {
         maneuverSteps = []
         simulatedStepIndex = 0
         selectedSegIdx = nil
+        voiceAnnouncer.stop()
     }
 
     private static func formatStepDistance(_ m: CLLocationDistance) -> String? {
@@ -416,6 +506,7 @@ struct DriveNavigationView: View {
                 } else {
                     syncDisplayedManeuver()
                 }
+                pushVoiceAfterNavigationUpdate(force: true)
             }
         } catch {
             await MainActor.run {

@@ -9,10 +9,27 @@ struct SettingsView: View {
     @EnvironmentObject private var session: AppSession
     @State private var urlDraft: String = ""
     @State private var priceDraft: String = ""
+    @State private var elevenLabsKeyDraft: String = ""
+    @State private var voiceGuidanceDraft: Bool = false
 
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    Toggle("Anuncios de voz (maniobra + ORTA)", isOn: $voiceGuidanceDraft)
+                    SecureField("Clave en Ajustes (opcional, sobrescribe la del código)", text: $elevenLabsKeyDraft)
+                        .textContentType(.password)
+                        .autocorrectionDisabled()
+                    Text(
+                        "Si definís clave en `ORTASecrets.elevenLabsApiKeyEmbedded`, esa tiene prioridad sobre el campo de abajo. " +
+                            "No subas claves reales a repos públicos."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                } header: {
+                    Text("Voz (ElevenLabs)")
+                }
+
                 Section {
                     TextField("URL base (sin barra final)", text: $urlDraft)
                         .textContentType(.URL)
@@ -38,6 +55,8 @@ struct SettingsView: View {
                         if let p = Double(priceDraft.replacingOccurrences(of: ",", with: ".")) {
                             session.dieselPriceMXNPerL = p
                         }
+                        session.voiceGuidanceEnabled = voiceGuidanceDraft
+                        session.elevenLabsApiKey = elevenLabsKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
                     }
                 }
             }
@@ -45,6 +64,8 @@ struct SettingsView: View {
             .onAppear {
                 urlDraft = session.apiBaseURL
                 priceDraft = String(format: "%.2f", session.dieselPriceMXNPerL)
+                voiceGuidanceDraft = session.voiceGuidanceEnabled
+                elevenLabsKeyDraft = session.elevenLabsApiKey
             }
         }
     }

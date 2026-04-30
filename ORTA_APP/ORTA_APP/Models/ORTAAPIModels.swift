@@ -144,4 +144,30 @@ struct CoachingSegment: Decodable, Identifiable {
         }
         return m.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    /// Texto acotado para voz (TTS): como mucho dos frases; evita leer avisos enteros.
+    var speechBriefForVoice: String {
+        let m = recommendationMessageForDisplay.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !m.isEmpty else { return "" }
+        let bits = m
+            .components(separatedBy: ". ")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard let first = bits.first else { return "" }
+        if bits.count >= 2 {
+            var a = first
+            if !a.hasSuffix(".") { a += "." }
+            var b = bits[1]
+            if b.count > 140 {
+                b = String(b.prefix(137)).trimmingCharacters(in: .whitespacesAndNewlines) + "…"
+            } else if !b.hasSuffix(".") && !b.hasSuffix("…") {
+                b += "."
+            }
+            return "\(a) \(b)"
+        }
+        if first.count > 200 {
+            return String(first.prefix(197)).trimmingCharacters(in: .whitespacesAndNewlines) + "…"
+        }
+        return first + (first.hasSuffix(".") || first.hasSuffix("…") ? "" : ".")
+    }
 }
