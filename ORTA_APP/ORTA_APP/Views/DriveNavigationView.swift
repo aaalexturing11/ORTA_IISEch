@@ -65,7 +65,7 @@ struct DriveNavigationView: View {
             apiKey: session.resolvedElevenLabsApiKey,
             enabled: session.voiceGuidanceEnabled
         )
-        guard session.voiceGuidanceEnabled, session.hasElevenLabsApiKey else { return }
+        guard session.voiceGuidanceEnabled else { return }
         voiceAnnouncer.onManeuverChanged(
             stepFingerprint: maneuverVoiceFingerprint,
             distanceText: nextStepDistanceText,
@@ -136,47 +136,11 @@ struct DriveNavigationView: View {
                     topInstructionBanner
                     Spacer(minLength: 0)
                 }
-                .padding(.top, 6)
+                .padding(.top, 10)
 
                 bottomChrome
             }
             .background(Color.black)
-            .overlay(alignment: .topTrailing) {
-                VStack(spacing: 10) {
-                    Button {
-                        Task { await loadAll() }
-                    } label: {
-                        Group {
-                            if isLoading {
-                                ProgressView()
-                                    .tint(.white)
-                            } else {
-                                Image(systemName: "arrow.clockwise")
-                                    .font(.title3.weight(.semibold))
-                                    .foregroundStyle(.white)
-                            }
-                        }
-                        .frame(width: 44, height: 44)
-                        .background(.ultraThinMaterial, in: Circle())
-                    }
-                    .disabled(!session.hasSelection || isLoading)
-
-                    if session.voiceGuidanceEnabled && session.hasElevenLabsApiKey {
-                        Button {
-                            voiceAnnouncer.replayLast()
-                        } label: {
-                            Image(systemName: "speaker.wave.3.fill")
-                                .font(.title3.weight(.semibold))
-                                .foregroundStyle(voiceAnnouncer.isSpeaking ? ORTATheme.accent : .white)
-                                .frame(width: 44, height: 44)
-                                .background(.ultraThinMaterial, in: Circle())
-                        }
-                        .accessibilityLabel("Repetir último anuncio de voz")
-                    }
-                }
-                .padding(.trailing, 12)
-                .padding(.top, 52)
-            }
             .task {
                 locationManager.requestWhenInUseAuthorization()
                 if session.hasSelection {
@@ -259,65 +223,89 @@ struct DriveNavigationView: View {
     }
 
     private var topInstructionBanner: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            if let t = nextStepDistanceText, !t.isEmpty {
-                Text(t)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(ORTATheme.accent)
-            }
-            Text(primaryInstruction.isEmpty ? "Calculando maniobra…" : primaryInstruction)
-                .font(.title3.weight(.bold))
-                .foregroundStyle(.white)
-                .multilineTextAlignment(.leading)
-                .minimumScaleFactor(0.75)
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                if let t = nextStepDistanceText, !t.isEmpty {
+                    Text(t)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(ORTATheme.accent)
+                }
+                Text(primaryInstruction.isEmpty ? "Calculando maniobra…" : primaryInstruction)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.leading)
+                    .minimumScaleFactor(0.75)
 
-            if let seg = coachingSegmentForBanner {
-                let msg = seg.recommendationMessageForDisplay.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !msg.isEmpty {
-                    HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: iconForCoachingAction(seg.recommendationAction))
-                            .font(.title3)
-                            .foregroundStyle(Color(red: 0.45, green: 0.92, blue: 0.72))
-                            .frame(width: 28, alignment: .center)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("Consejo ORTA (tramo \(seg.segIdx))")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.white.opacity(0.55))
-                            Text(msg)
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(Color(red: 0.82, green: 0.96, blue: 0.9))
-                                .fixedSize(horizontal: false, vertical: true)
+                if let seg = coachingSegmentForBanner {
+                    let msg = seg.recommendationMessageForDisplay.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !msg.isEmpty {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: iconForCoachingAction(seg.recommendationAction))
+                                .font(.title3)
+                                .foregroundStyle(Color(red: 0.45, green: 0.92, blue: 0.72))
+                                .frame(width: 28, alignment: .center)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("Consejo ORTA (tramo \(seg.segIdx))")
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.55))
+                                Text(msg)
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(Color(red: 0.82, green: 0.96, blue: 0.9))
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
+                        .padding(.top, 8)
                     }
-                    .padding(.top, 8)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(spacing: 8) {
+                Button {
+                    Task { await loadAll() }
+                } label: {
+                    Group {
+                        if isLoading {
+                            ProgressView()
+                                .tint(.white)
+                                .scaleEffect(0.85)
+                        } else {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(.white.opacity(0.95))
+                        }
+                    }
+                    .frame(width: 34, height: 34)
+                    .background(Color.white.opacity(0.14), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(!session.hasSelection || isLoading)
+                .accessibilityLabel("Actualizar ruta y coaching")
+
+                if session.voiceGuidanceEnabled {
+                    Button {
+                        voiceAnnouncer.replayLast()
+                    } label: {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(voiceAnnouncer.isSpeaking ? ORTATheme.accent : .white.opacity(0.95))
+                            .frame(width: 34, height: 34)
+                            .background(Color.white.opacity(0.14), in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Repetir último anuncio de voz")
+                }
+            }
+            .padding(.top, 2)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.leading, 14)
+        .padding(.trailing, 10)
+        .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(Color.black.opacity(0.88))
         )
         .padding(.horizontal, 10)
-        .overlay(alignment: .bottomTrailing) {
-            #if DEBUG
-            if canDebugSimulateAdvance {
-                Button {
-                    advanceSimulatedManeuver()
-                } label: {
-                    Image(systemName: "arrowtriangle.right.fill")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.black)
-                        .frame(width: 32, height: 28)
-                        .background(Color.yellow, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-                }
-                .accessibilityLabel("Simular siguiente maniobra (debug)")
-                .padding(8)
-            }
-            #endif
-        }
     }
 
     private var bottomChrome: some View {

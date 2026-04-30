@@ -15,22 +15,39 @@ private final class AVAudioFinishDelegate: NSObject, AVAudioPlayerDelegate {
     }
 }
 
+private final class SystemSpeechDelegate: NSObject, AVSpeechSynthesizerDelegate {
+    var onFinish: (() -> Void)?
+
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        onFinish?()
+        onFinish = nil
+    }
+
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        onFinish?()
+        onFinish = nil
+    }
+}
+
 @MainActor
 final class NavigationVoiceAnnouncer: ObservableObject {
     @Published private(set) var isSpeaking = false
-    /// Último fallo de síntesis (solo diagnóstico en consola en DEBUG).
     @Published private(set) var lastErrorDescription: String?
 
     private let client = ElevenLabsTTSClient()
     private let audioDelegate = AVAudioFinishDelegate()
+    private let systemSynth = AVSpeechSynthesizer()
+    private let systemSpeechDelegate = SystemSpeechDelegate()
+
     private var apiKey = ""
+    /// Anuncios activados (Ajustes), con o sin clave ElevenLabs.
     private var voiceEnabled = false
+
     private var audioPlayer: AVAudioPlayer?
 
     private var speakQueue: [String] = []
     private var queueRunner: Task<Void, Never>?
 
-    /// Evita encolar dos veces el mismo paso (p. ej. doble `onChange` en el mismo ciclo).
     private var lastQueuedManeuverFingerprint = ""
     private var lastQueuedCoachingKey = ""
     private var storedManeuverLine = ""
@@ -39,10 +56,15 @@ final class NavigationVoiceAnnouncer: ObservableObject {
     func configure(apiKey: String, enabled: Bool) {
         let k = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         self.apiKey = k
-        voiceEnabled = enabled && !k.isEmpty
-        if !voiceEnabled {
+        voiceEnabled = enabled
+        if !enabled {
             stop()
         }
+    }
+
+    /// `true` si hay clave para intentar ElevenLabs antes que la voz del sistema.
+    private var canUseElevenLabs: Bool {
+        !apiKey.isEmpty
     }
 
     func interruptPlayback() {
@@ -50,9 +72,11 @@ final class NavigationVoiceAnnouncer: ObservableObject {
         queueRunner = nil
         audioPlayer?.stop()
         audioPlayer = nil
+        if systemSynth.isSpeaking {
+            systemSynth.stopSpeaking(at: .immediate)
+        }
         speakQueue.removeAll()
         isSpeaking = false
-        // Al salir del mapa, permitir volver a anunciar el mismo paso al regresar.
         lastQueuedManeuverFingerprint = ""
         lastQueuedCoachingKey = ""
     }
@@ -72,6 +96,9 @@ final class NavigationVoiceAnnouncer: ObservableObject {
         queueRunner = nil
         audioPlayer?.stop()
         audioPlayer = nil
+        if systemSynth.isSpeaking {
+            systemSynth.stopSpeaking(at: .immediate)
+        }
         speakQueue.removeAll()
         if !storedManeuverLine.isEmpty { speakQueue.append(storedManeuverLine) }
         if !storedCoachingLine.isEmpty { speakQueue.append(storedCoachingLine) }
@@ -79,7 +106,6 @@ final class NavigationVoiceAnnouncer: ObservableObject {
         startRunnerIfNeeded()
     }
 
-    /// `stepFingerprint` debe incluir índice de paso + distancia + texto (p. ej. desde `DriveNavigationView`).
     func onManeuverChanged(
         stepFingerprint: String,
         distanceText: String?,
@@ -156,19 +182,38 @@ final class NavigationVoiceAnnouncer: ObservableObject {
         }
     }
 
+    private func activatePlaybackSession() {
+        try? AVAudioSession.sharedInstance().setCategory(
+            .playback,
+            mode: .spokenAudio,
+            options: [.duckOthers, .defaultToSpeaker]
+        )
+        try? AVAudioSession.sharedInstance().setActive(true)
+    }
+
     private func speakOne(_ line: String) async {
         isSpeaking = true
         defer { isSpeaking = false }
+        activatePlaybackSession()
+
+        if !canUseElevenLabs {
+            await MainActor.run {
+                lastErrorDescription = nil
+            }
+            await speakSystemLine(line)
+            return
+        }
+
         do {
             let data = try await client.synthesize(text: line, apiKey: apiKey)
-            try? AVAudioSession.sharedInstance().setCategory(
-                .playback,
-                mode: .spokenAudio,
-                options: [.duckOthers, .defaultToSpeaker]
-            )
-            try? AVAudioSession.sharedInstance().setActive(true)
             await MainActor.run { lastErrorDescription = nil }
-            await playMPEGData(data)
+            let played = await playMPEGData(data)
+            if !played {
+                await MainActor.run {
+                    lastErrorDescription = "No se pudo reproducir el audio de ElevenLabs; usando voz del sistema."
+                }
+                await speakSystemLine(line)
+            }
         } catch {
             let msg: String
             if let le = error as? LocalizedError, let d = le.errorDescription {
@@ -176,31 +221,56 @@ final class NavigationVoiceAnnouncer: ObservableObject {
             } else {
                 msg = (error as NSError).localizedDescription
             }
-            await MainActor.run { lastErrorDescription = msg }
+            await MainActor.run {
+                lastErrorDescription = "\(msg) · Se usa voz del sistema."
+            }
             #if DEBUG
-            print("[ORTA voice] synthesize/play error: \(error)")
+            print("[ORTA voice] ElevenLabs error: \(error)")
             #endif
+            await speakSystemLine(line)
         }
     }
 
-    private func playMPEGData(_ data: Data) async {
-        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+    /// - Returns: `true` si se oyó audio hasta el final del clip.
+    private func playMPEGData(_ data: Data) async -> Bool {
+        await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
             do {
                 let player = try AVAudioPlayer(data: data)
                 self.audioPlayer?.stop()
                 self.audioPlayer = player
                 self.audioDelegate.onFinish = {
-                    cont.resume()
+                    cont.resume(returning: true)
                 }
                 player.delegate = self.audioDelegate
                 player.prepareToPlay()
                 guard player.play() else {
-                    cont.resume()
+                    cont.resume(returning: false)
                     return
                 }
             } catch {
-                cont.resume()
+                cont.resume(returning: false)
             }
+        }
+    }
+
+    private func speakSystemLine(_ line: String) async {
+        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            activatePlaybackSession()
+            systemSpeechDelegate.onFinish = {
+                cont.resume(returning: ())
+            }
+            systemSynth.delegate = systemSpeechDelegate
+            if systemSynth.isSpeaking {
+                systemSynth.stopSpeaking(at: .immediate)
+            }
+            let u = AVSpeechUtterance(string: line)
+            u.voice =
+                AVSpeechSynthesisVoice(language: "es-MX")
+                ?? AVSpeechSynthesisVoice(language: "es-419")
+                ?? AVSpeechSynthesisVoice(language: "es-ES")
+            u.rate = 0.48
+            u.volume = 1.0
+            systemSynth.speak(u)
         }
     }
 }
