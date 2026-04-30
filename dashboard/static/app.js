@@ -7,6 +7,7 @@ const state = {
   hotspotMarker: null,
   driverChart: null,
   anomChart: null,
+  clusterChart: null,
 };
 
 const fmt = (n, d = 1) => (n == null || Number.isNaN(+n) ? "—" : Number(n).toFixed(d));
@@ -343,17 +344,154 @@ function renderAnomalies(an) {
   }
 
   const rb = document.getElementById("anom-recent-body");
-  rb.innerHTML = "";
-  for (const r of an.recent || []) {
-    const when = (r.departure_iso || "").slice(0, 16).replace("T", " ");
-    const seg = r.segment_start === r.segment_end
-      ? `${r.segment_start}` : `${r.segment_start}–${r.segment_end}`;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${when}</td><td>${r.driver_name || ""}</td>
-      <td><span class="kind-pill" style="--c:${kindColor(r.kind)}">${kindLabel(r.kind)}</span></td>
-      <td>${seg}</td><td class="muted">${r.detail || ""}</td>`;
-    rb.appendChild(tr);
+  const kindSel = document.getElementById("anom-filter-kind");
+  const drvSel = document.getElementById("anom-filter-driver");
+  const countEl = document.getElementById("anom-recent-count");
+  const recent = an.recent || [];
+
+  // Populate filter options (preserve current selection if still valid)
+  const prevKind = kindSel.value;
+  const prevDrv = drvSel.value;
+  const kindsAll = an.kinds || [...new Set(recent.map(r => r.kind))];
+  const drivers = [...new Set(recent.map(r => r.driver_name).filter(Boolean))].sort();
+  kindSel.innerHTML = `<option value="">All kinds</option>` +
+    kindsAll.map(k => `<option value="${k}">${kindLabel(k)}</option>`).join("");
+  drvSel.innerHTML = `<option value="">All drivers</option>` +
+    drivers.map(d => `<option value="${d}">${d}</option>`).join("");
+  if (kindsAll.includes(prevKind)) kindSel.value = prevKind;
+  if (drivers.includes(prevDrv)) drvSel.value = prevDrv;
+
+  const renderRows = () => {
+    const fk = kindSel.value, fd = drvSel.value;
+    const filtered = recent.filter(r =>
+      (!fk || r.kind === fk) && (!fd || r.driver_name === fd));
+    rb.innerHTML = "";
+    for (const r of filtered) {
+      const when = (r.departure_iso || "").slice(0, 16).replace("T", " ");
+      const seg = r.segment_start === r.segment_end
+        ? `${r.segment_start}` : `${r.segment_start}\u2013${r.segment_end}`;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${when}</td><td>${r.driver_name || ""}</td>
+        <td><span class="kind-pill" style="--c:${kindColor(r.kind)}">${kindLabel(r.kind)}</span></td>
+        <td>${seg}</td><td class="muted">${r.detail || ""}</td>`;
+      rb.appendChild(tr);
+    }
+    countEl.textContent = `${filtered.length} / ${recent.length}`;
+  };
+  kindSel.onchange = renderRows;
+  drvSel.onchange = renderRows;
+  renderRows();
+}
+
+// ---------- Driving styles (UMAP clusters) ----------
+
+const CLUSTER_PALETTE = [
+  "#4ea1ff", "#f87171", "#fbbf24", "#34d399", "#a78bfa",
+  "#fb923c", "#22d3ee", "#f472b6", "#94a3b8", "#facc15",
+];
+const clusterColor = c => CLUSTER_PALETTE[c % CLUSTER_PALETTE.length];
+
+async function renderClusters() {
+  let data;
+  try { data = await api("/clusters"); }
+  catch (e) { console.warn("clusters", e); return; }
+
+  document.getElementById("cluster-meta").textContent =
+    `k=${data.k} \u00b7 silhouette ${fmt(data.silhouette, 3)} \u00b7 ${data.n_trips} trips, ${data.n_drivers} drivers`;
+
+  // Scatter: trips colored by cluster
+  const groups = new Map();
+  for (const t of data.trip_assignments) {
+    if (!groups.has(t.cluster)) groups.set(t.cluster, []);
+    groups.get(t.cluster).push({ x: t.x, y: t.y, _meta: t });
   }
+  const labelByCluster = Object.fromEntries(
+    data.clusters.map(c => [c.cluster, c.label_hint])
+  );
+  const datasets = [...groups.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([cid, pts]) => ({
+      label: `${cid} \u00b7 ${labelByCluster[cid] || "cluster"}`,
+      data: pts,
+      backgroundColor: clusterColor(cid),
+      borderColor: clusterColor(cid),
+      pointRadius: 4, pointHoverRadius: 6,
+    }));
+
+  const ctx = document.getElementById("cluster-scatter");
+  if (state.clusterChart) state.clusterChart.destroy();
+  state.clusterChart = new Chart(ctx, {
+    type: "scatter",
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: "#e6e9f2", font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const m = ctx.raw._meta;
+              return `${m.driver_id} \u00b7 ${m.truck_model} \u00b7 cluster ${m.cluster}`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: { ticks: { color: "#8a93a8" }, grid: { color: "rgba(255,255,255,0.06)" }, title: { text: "UMAP-1", display: true, color: "#8a93a8" } },
+        y: { ticks: { color: "#8a93a8" }, grid: { color: "rgba(255,255,255,0.06)" }, title: { text: "UMAP-2", display: true, color: "#8a93a8" } },
+      },
+    },
+  });
+
+  // Cluster summary table
+  const cb = document.getElementById("cluster-body");
+  cb.innerHTML = "";
+  for (const c of data.clusters) {
+    const tr = document.createElement("tr");
+    const harsh = (c.centroid.harsh_brake_per_100km || 0)
+                + (c.centroid.harsh_accel_per_100km || 0)
+                + (c.centroid.harsh_turn_per_100km || 0);
+    tr.innerHTML = `
+      <td><span class="cluster-dot" style="--c:${clusterColor(c.cluster)}"></span>${c.cluster}</td>
+      <td>${c.label_hint}</td>
+      <td>${c.n_trips}</td>
+      <td>${c.n_drivers}</td>
+      <td>${fmt(c.centroid.speed_ratio_mean, 2)}</td>
+      <td>${fmt(c.centroid.fuel_per_100km, 1)}</td>
+      <td>${fmt(100 * (c.centroid.idle_frac || 0), 1)}</td>
+      <td>${fmt(harsh, 1)}</td>`;
+    cb.appendChild(tr);
+  }
+
+  // Driver style mix
+  const kinds = data.clusters.map(c => c.cluster);
+  const head = document.getElementById("mix-head");
+  head.innerHTML = `<th>Driver</th><th>Dominant</th><th>Purity</th>` +
+    kinds.map(c => `<th><span class="cluster-dot" style="--c:${clusterColor(c)}"></span>${c}</th>`).join("");
+  const mix = data.driver_cluster_mix || {};
+  const profByDriver = Object.fromEntries((data.driver_profiles || []).map(p => [p.driver_id, p]));
+  const body = document.getElementById("mix-body");
+  body.innerHTML = "";
+  for (const drv of Object.keys(mix).sort()) {
+    const p = profByDriver[drv] || {};
+    const cells = kinds.map(c => {
+      const v = mix[drv][c] || 0;
+      const intensity = Math.round(v * 100);
+      const bg = `rgba(${hexToRgb(clusterColor(c))}, ${0.05 + 0.55 * v})`;
+      return `<td style="background:${bg}">${intensity ? intensity + "%" : ""}</td>`;
+    }).join("");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p.driver_name || drv}</td>
+      <td><span class="cluster-dot" style="--c:${clusterColor(p.dominant_cluster)}"></span>${p.dominant_cluster}</td>
+      <td>${fmt((p.purity || 0) * 100, 0)}%</td>${cells}`;
+    body.appendChild(tr);
+  }
+}
+
+function hexToRgb(hex) {
+  const m = hex.replace("#", "");
+  const n = parseInt(m, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(",");
 }
 
 async function renderAll() {
@@ -365,6 +503,7 @@ async function renderAll() {
       renderDrivers(),
       renderTrucks(),
       renderIdleAndAnomalies(),
+      renderClusters(),
     ]);
   } catch (e) {
     console.error(e);

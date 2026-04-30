@@ -93,12 +93,55 @@
               <thead><tr id="anom-driver-head"></tr></thead>
               <tbody id="anom-driver-body"></tbody>
             </table>
-            <h3 class="sub-h" style="margin-top:14px">Most recent events</h3>
-            <table class="data-table">
-              <thead><tr><th>When</th><th>Driver</th><th>Kind</th><th>Seg</th><th>Detail</th></tr></thead>
-              <tbody id="anom-recent-body"></tbody>
+            <div class="recent-header">
+              <h3 class="sub-h" style="margin:0">Most recent events</h3>
+              <div class="recent-filters">
+                <select id="anom-filter-kind"><option value="">All kinds</option></select>
+                <select id="anom-filter-driver"><option value="">All drivers</option></select>
+                <span class="muted small" id="anom-recent-count"></span>
+              </div>
+            </div>
+            <div class="scroll-table">
+              <table class="data-table compact">
+                <thead><tr><th>When</th><th>Driver</th><th>Kind</th><th>Seg</th><th>Detail</th></tr></thead>
+                <tbody id="anom-recent-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Driving styles — UMAP clusters</h2>
+          <span class="muted small" id="cluster-meta"></span>
+        </div>
+        <p class="muted small">
+          Each trip is reduced to a 5-D UMAP embedding of route-invariant
+          driving features, then grouped with Ward agglomerative clustering.
+          Cluster count is picked by silhouette with safeguards. Aggregated
+          across both trucks for this route.
+        </p>
+        <div class="row">
+          <div class="chart-box"><canvas id="cluster-scatter"></canvas></div>
+          <div>
+            <h3 class="sub-h">Clusters</h3>
+            <table class="data-table" id="cluster-table">
+              <thead><tr>
+                <th>#</th><th>Style</th><th>Trips</th><th>Drivers</th>
+                <th>Speed ratio</th><th>L/100km</th><th>Idle %</th><th>Harsh /100km</th>
+              </tr></thead>
+              <tbody id="cluster-body"></tbody>
             </table>
           </div>
+        </div>
+        <h3 class="sub-h" style="margin-top:14px">Driver style mix</h3>
+        <p class="muted small">Share of each driver's trips that fall into each cluster (0–1).</p>
+        <div style="overflow-x:auto">
+          <table class="data-table" id="mix-table">
+            <thead><tr id="mix-head"></tr></thead>
+            <tbody id="mix-body"></tbody>
+          </table>
         </div>
       </section>
     </main>

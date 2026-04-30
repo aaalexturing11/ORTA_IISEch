@@ -24,6 +24,8 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from .clustering import compute_route_clusters
+
 ROOT = Path(__file__).resolve().parent.parent
 ROUTES_DIR = ROOT / "output" / "routes"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -570,7 +572,7 @@ def anomalies(
     pivot["total"] = pivot.drop(columns=["driver_id", "driver_name"]).sum(axis=1)
     pivot = pivot.sort_values("total", ascending=False)
 
-    recent = a_df.sort_values("departure_iso", ascending=False).head(15)[
+    recent = a_df.sort_values("departure_iso", ascending=False).head(200)[
         ["departure_iso", "driver_name", "kind", "trip_id", "segment_start", "segment_end", "detail"]
     ]
     recent["detail"] = recent["detail"].apply(
@@ -585,6 +587,22 @@ def anomalies(
         "recent": recent.to_dict(orient="records"),
         "total": int(len(a_df)),
     }
+
+
+@app.get("/api/clusters")
+def clusters(route: str | None = Query(None)):
+    """Per-route driving-style clusters (UMAP + Agglomerative).
+
+    Aggregates all trucks under the route to maximise sample size, since the
+    features used are route-invariant driving style metrics.
+    """
+    rs, _ = _resolve_selection(route, None)
+    try:
+        return compute_route_clusters(rs)
+    except FileNotFoundError as exc:
+        raise HTTPException(404, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
 
 
 @app.get("/api/idle")

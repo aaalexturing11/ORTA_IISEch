@@ -284,3 +284,38 @@ canvas { max-width: 100%; }
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
+
+.cluster-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--c);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+#mix-table td { text-align: center; font-variant-numeric: tabular-nums; }
+#mix-table th { text-align: center; }
+#mix-table td:first-child, #mix-table th:first-child { text-align: left; }
+
+.recent-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-top: 14px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.recent-filters { display: flex; align-items: center; gap: 6px; }
+.recent-filters select {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 3px 6px; font-size: 12px;
+}
+.scroll-table {
+  max-height: 220px; overflow-y: auto;
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.scroll-table table { margin: 0; }
+.scroll-table thead th {
+  position: sticky; top: 0; background: var(--panel-2); z-index: 1;
+}
+.data-table.compact th, .data-table.compact td {
+  padding: 4px 8px; font-size: 12px;
+}
