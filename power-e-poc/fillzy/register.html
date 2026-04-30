@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Registro — Fillzy</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body id="page-auth">
+  <header class="site-header">
+    <div class="logo">Fillzy</div>
+  </header>
+
+  <main class="auth-page">
+    <section class="auth-card">
+      <h2>Regístrate</h2>
+      <form id="registerForm">
+        <label>
+          Usuario
+          <input name="username" required placeholder="tuusuario" />
+        </label>
+        <label>
+          Correo
+          <input name="email" type="email" required placeholder="tucorreo@ej.com" />
+        </label>
+        <label>
+          Contraseña
+          <input name="password" type="password" required placeholder="••••••" />
+        </label>
+        <div class="form-row">
+          <button class="btn primary" type="submit">Crear cuenta</button>
+          <a class="btn ghost" href="login.html">¿Ya tienes cuenta?</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

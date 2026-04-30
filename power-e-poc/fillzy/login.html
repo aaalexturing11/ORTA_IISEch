@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Iniciar sesión — Fillzy</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body id="page-auth">
+  <header class="site-header">
+    <div class="logo">Fillzy</div>
+  </header>
+
+  <main class="auth-page">
+    <section class="auth-card">
+      <h2>Iniciar sesión</h2>
+      <form id="loginForm">
+        <label>
+          Usuario
+          <input name="username" required placeholder="tuusuario" />
+        </label>
+        <label>
+          Contraseña
+          <input name="password" type="password" required placeholder="••••••" />
+        </label>
+        <div class="form-row">
+          <button class="btn primary" type="submit">Entrar</button>
+          <a class="btn ghost" href="register.html">Crear cuenta</a>
+        </div>
+        <p class="hint">Para probar como admin usa usuario <strong>admin</strong> (no se valida contraseña en demo).</p>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

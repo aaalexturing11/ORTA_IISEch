@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard — Fillzy</title>
+
+  <!-- Probar primero Mapbox, fallback a Google Maps -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.js"></script>
+  <!-- Reemplaza YOUR_API_KEY con tu clave real de Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDHVjHSE-RxcfsjnQGsga67Yz5VDy-sJpM&callback=Function.prototype"></script>
+  
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Estilos para ambos tipos de mapas */
+    .map-area {
+      flex: 1;
+      position: relative;
+      height: calc(100vh - 64px);
+      margin: 0;
+      overflow: hidden;
+      background: #0c1015;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #0c1015;
+      border-radius: 16px;
+      margin: 16px;
+      width: calc(100% - 32px);
+      height: calc(100% - 32px);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+
+    .dashboard-wrap {
+      display: flex;
+      height: calc(100vh - 64px);
+      gap: 0;
+      padding: 0;
+      background: rgba(0,0,0,0.2);
+    }
+
+    /* Controles personalizados */
+    .map-controls {
+      position: absolute;
+      top: 26px;
+      right: 26px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .map-control-button {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .panel {
+      background: rgba(0, 0, 0, 0.94);
+      z-index: 9999;
+      position: fixed;
+      backdrop-filter: blur(10px);
+    }
+
+    .map-control-button:hover {
+      background: rgba(30, 30, 30, 0.9);
+    }
+
+    /* Personalización controles Mapbox */
+    .mapboxgl-ctrl-zoom-in,
+    .mapboxgl-ctrl-zoom-out {
+      background-color: rgba(0,0,0,0.75) !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+
+    .mapboxgl-ctrl-group {
+      background-color: transparent !important;
+      backdrop-filter: blur(8px);
+    }
+    /* Banner de estado para debug útil en pantalla */
+    #mapStatus {
+      position: absolute;
+      left: 28px;
+      top: 28px;
+      z-index: 9999;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      backdrop-filter: blur(6px);
+      display: none;
+    }
+
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: grab;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .color-swatch:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+
+    .color-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+    }
+
+    .station-preview {
+      position: fixed;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: opacity 0.2s;
+    }
+
+    .coords-toggle {
+      font-size: 0.9em;
+      color: var(--muted);
+      text-decoration: underline;
+      cursor: pointer;
+      margin: 8px 0;
+      display: block;
+    }
+
+    .manual-coords {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .manual-coords.visible {
+      display: block;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      max-width: 320px;
+      min-width: 280px;
+      background: rgba(0,0,0,0.3);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+
+    .summary {
+      padding: 16px;
+      background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    .station-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) rgba(0,0,0,0.2);
+    }
+
+    /* Estilos para scrollbar en webkit */
+    .station-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .station-list::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+
+    .station-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+    }
+
+    .station-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.4);
+    }
+
+    .station-card {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .station-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Ajuste del layout principal */
+    .dashboard-wrap {
+      display: flex;
+      height: calc(100vh - 64px);
+      gap: 0;
+      padding: 0;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .map-area {
+      margin: 0;
+      border-radius: 0;
+    }
+
+    #map {
+      border-radius: 0;
+    }
+
+    .trash-bin {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: rgba(180,60,60,0.1);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: #ff6b6b;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .trash-bin.drag-over {
+      background: rgba(180,60,60,0.2);
+      color: #ff8f8f;
+      transform: scale(1.05);
+    }
+
+    .station-card[draggable="true"] {
+      cursor: grab;
+    }
+
+    .station-card[draggable="true"]:active {
+      cursor: grabbing;
+    }
+
+    .station-card.dragging {
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+
+    .station-card.deleting {
+      animation: delete-animation 0.3s ease forwards;
+    }
+
+    @keyframes delete-animation {
+      to {
+        transform: scale(0.1) translateY(50px);
+        opacity: 0;
+      }
+    }
+
+    .power-e-panel {
+      position: absolute;
+      left: 24px;
+      bottom: 24px;
+      z-index: 1001;
+      max-width: min(320px, calc(100% - 48px));
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(8, 12, 18, 0.92);
+      border: 1px solid rgba(62, 207, 142, 0.35);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(10px);
+      font-size: 13px;
+      color: #e8eef4;
+    }
+    .power-e-panel__title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: #3ecf8e;
+    }
+    .power-e-panel__row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 12px;
+      align-items: baseline;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 6px;
+    }
+    .power-e-panel__row:last-of-type {
+      border-bottom: none;
+    }
+    .power-e-panel__row span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .power-e-panel__row strong {
+      text-align: right;
+      font-size: 0.8rem;
+      font-weight: 600;
+      max-width: 200px;
+    }
+    .power-e-panel__btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(61, 156, 240, 0.25);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .power-e-panel__btn:hover {
+      background: rgba(61, 156, 240, 0.4);
+    }
+  </style>
+
+  <!-- Añadir Font Awesome para el ícono de basura -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body id="page-dashboard">
+  <header class="site-header">
+    <div class="logo">Fillzy</div>
+    <nav id="header-actions"></nav>
+  </header>
+
+  <main class="dashboard-wrap">
+    <aside class="sidebar">
+      <div class="summary">
+        <div class="stat">
+          <div class="num" id="stat-stations">--</div>
+          <div class="label">Estaciones</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="stat-free">--</div>
+          <div class="label">Slots libres</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="stat-res">--</div>
+          <div class="label">Reservas activas</div>
+        </div>
+      </div>
+
+      <div class="station-list" id="stationList"></div>
+    </aside>
+
+    <section class="map-area">
+      <div id="map"></div>
+      <div class="map-controls">
+        <button class="map-control-button" id="zoomIn">+</button>
+        <button class="map-control-button" id="zoomOut">−</button>
+      </div>
+      <div id="mapStatus" role="status" aria-live="polite"></div>
+      <div id="powerEPanel" class="power-e-panel" hidden></div>
+    </section>
+  </main>
+
+  <!-- Panel para agregar estación -->
+  <div id="addStationPanel" class="panel slide-hidden" aria-hidden="true">
+    <div class="panel-header">
+      <h3>Agregar estación</h3>
+      <button class="btn ghost small" id="closePanel">Cerrar</button>
+    </div>
+    <form id="addStationForm" class="panel-body">
+      <label>Nombre
+        <input name="name" required />
+      </label>
+
+      <label>Arrastra un color al mapa para colocar la estación
+        <div class="color-grid" id="colorGrid"></div>
+      </label>
+
+      <span class="coords-toggle" id="toggleCoords">O ingresa coordenadas manualmente</span>
+      
+      <div class="manual-coords" id="manualCoords">
+        <label>Latitud
+          <input name="lat" placeholder="19.4" />
+        </label>
+        <label>Longitud
+          <input name="lng" placeholder="-99.1" />
+        </label>
+      </div>
+
+      <label>Capacidad
+        <input name="capacity" type="number" min="1" value="4" />
+      </label>
+
+      <label>Tarifa (p. ej. Regular)
+        <input name="tariff" placeholder="20.5" />
+      </label>
+
+      <div class="form-row">
+        <button class="btn primary" type="submit">Guardar</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      if (location.protocol === "file:")
+        window.__POE_API_BASE__ = "http://127.0.0.1:3041";
+      else {
+        var prt = parseInt(location.port, 10) || 80;
+        var devPorts = [5173, 5174, 5175, 3000, 8080];
+        window.__POE_API_BASE__ =
+          devPorts.indexOf(prt) >= 0 ? "http://127.0.0.1:3041" : "";
+      }
+    })();
+  </script>
+  <script src="js/app.js"></script>
+</body>
+</html>
