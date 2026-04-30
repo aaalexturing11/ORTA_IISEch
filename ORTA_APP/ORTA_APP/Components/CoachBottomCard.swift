@@ -15,10 +15,11 @@ struct CoachBottomCard: View {
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(ORTATheme.accent)
-                Text(s.recommendationMessage ?? "—")
+                Text(s.recommendationMessageForDisplay.isEmpty ? "—" : s.recommendationMessageForDisplay)
                     .font(.body)
                     .foregroundStyle(.primary)
-                if (s.recommendationAction ?? "KEEP") != "KEEP", let sci = s.recommendationScience {
+                let act = (s.recommendationAction ?? "KEEP").uppercased()
+                if act != "KEEP", act != "CRUISE_OPTIMAL", let sci = s.recommendationScience {
                     Text(sci)
                         .font(.caption2)
                         .foregroundStyle(.secondary)

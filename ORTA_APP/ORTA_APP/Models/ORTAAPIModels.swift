@@ -104,6 +104,7 @@ struct CoachingSegment: Decodable, Identifiable {
     let recommendationSavings: Double?
     let alerts: [String]?
     let showWeatherMarker: Bool?
+    let congestionRatio: Double?
 
     enum CodingKeys: String, CodingKey {
         case segIdx = "seg_idx"
@@ -125,6 +126,7 @@ struct CoachingSegment: Decodable, Identifiable {
         case recommendationSavings = "recommendation_savings"
         case alerts
         case showWeatherMarker = "show_weather_marker"
+        case congestionRatio = "congestion_ratio"
     }
 
     var coordinatePair: [CLLocationCoordinate2D] {
@@ -132,5 +134,14 @@ struct CoachingSegment: Decodable, Identifiable {
             CLLocationCoordinate2D(latitude: startLat, longitude: startLon),
             CLLocationCoordinate2D(latitude: endLat, longitude: endLon),
         ]
+    }
+
+    /// Texto UI sin la cola de torque (API antigua); el backend ya envía el mensaje corto.
+    var recommendationMessageForDisplay: String {
+        var m = (recommendationMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if let r = m.range(of: " para torque", options: .caseInsensitive) {
+            m.removeSubrange(r.lowerBound..<m.endIndex)
+        }
+        return m.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

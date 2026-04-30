@@ -13,12 +13,41 @@ struct CoachingMapView: View {
     @Binding var position: MapCameraPosition
     @Binding var selectedSegIdx: Int?
 
+    @State private var mapLatitudeDelta: Double = 0.45
+
+    private var allIncidents: [CoachingMapIncident] {
+        CoachingIncidentScoring.incidents(from: segments)
+    }
+
+    private var visibleIncidents: [CoachingMapIncident] {
+        CoachingIncidentScoring.visibleIncidents(all: allIncidents, latitudeDelta: mapLatitudeDelta)
+    }
+
+    private var routeOutline: [CLLocationCoordinate2D] {
+        CoachingIncidentScoring.routeOutlineCoordinates(segments: segments)
+    }
+
+    private var visibleColoredSegments: [CoachingSegment] {
+        CoachingIncidentScoring.visibleColoredSegments(segments, latitudeDelta: mapLatitudeDelta)
+    }
+
     var body: some View {
         Map(position: $position, selection: $selectedSegIdx) {
-            ForEach(segments) { seg in
+            if routeOutline.count >= 2 {
+                MapPolyline(coordinates: routeOutline)
+                    .stroke(Color.white.opacity(0.22), lineWidth: 4)
+                MapPolyline(coordinates: routeOutline)
+                    .stroke(Color(red: 0.22, green: 0.28, blue: 0.38), lineWidth: 2.5)
+            }
+            ForEach(visibleColoredSegments) { seg in
                 MapPolyline(coordinates: seg.coordinatePair)
                     .stroke(Color(ortaHex: seg.color ?? "#3388ff"), lineWidth: CGFloat(min(10, max(3, seg.weight ?? 4))))
                     .tag(seg.segIdx as Int?)
+            }
+            ForEach(visibleIncidents) { inc in
+                Annotation(inc.tooltip, coordinate: inc.coordinate) {
+                    incidentGlyph(inc.kind)
+                }
             }
             if let o = origin {
                 Annotation(o.label ?? "Origen", coordinate: CLLocationCoordinate2D(latitude: o.lat, longitude: o.lon)) {
@@ -42,6 +71,30 @@ struct CoachingMapView: View {
         .mapControls {
             MapUserLocationButton()
             MapCompass()
+        }
+        .onMapCameraChange(frequency: .onEnd) { ctx in
+            mapLatitudeDelta = ctx.region.span.latitudeDelta
+        }
+    }
+
+    @ViewBuilder
+    private func incidentGlyph(_ kind: CoachingMapIncidentKind) -> some View {
+        switch kind {
+        case .traffic:
+            Circle()
+                .fill(Color(red: 0.93, green: 0.27, blue: 0.27))
+                .frame(width: 12, height: 12)
+                .overlay(Circle().stroke(.white, lineWidth: 2))
+        case .steepSlope:
+            Circle()
+                .fill(Color(red: 0.07, green: 0.09, blue: 0.15))
+                .frame(width: 12, height: 12)
+                .overlay(Circle().stroke(.white, lineWidth: 2))
+        case .weather:
+            Image(systemName: "cloud.sun.rain.fill")
+                .font(.system(size: 16))
+                .foregroundStyle(.cyan)
+                .shadow(color: .black.opacity(0.35), radius: 1, y: 1)
         }
     }
 }

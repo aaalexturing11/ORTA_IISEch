@@ -10,6 +10,8 @@ import SwiftUI
 private struct ManeuverDisplayStep: Equatable {
     let text: String
     let distanceM: CLLocationDistance
+    /// Tiempo MapKit asignado a este paso (proporcional a su distancia sobre la ruta).
+    let durationSec: TimeInterval
 }
 
 struct DriveNavigationView: View {
@@ -21,6 +23,8 @@ struct DriveNavigationView: View {
     @State private var nextStepDistanceText: String?
     @State private var routeEtaMinutes: Int?
     @State private var routeDistanceKm: Double?
+    /// Duración total de la ruta MapKit (para repartir tiempo entre pasos).
+    @State private var routeTotalDurationSec: TimeInterval = 0
     @State private var maneuverSteps: [ManeuverDisplayStep] = []
     @State private var simulatedStepIndex: Int = 0
     @State private var isLoading = false
@@ -51,12 +55,48 @@ struct DriveNavigationView: View {
         case "WIND_COMPENSATION": return "wind"
         case "WET_EFFICIENCY": return "cloud.rain.fill"
         case "POWER_BAND": return "gauge.with.dots.needle.67percent"
+        case "CLIMB_MILD": return "arrow.up.right.circle.fill"
+        case "DESCENT_STEEP", "DESCENT_MODERATE": return "arrow.down.circle.fill"
+        case "CRUISE_OPTIMAL": return "road.lanes"
         default: return "leaf.arrow.triangle.circlepath"
         }
     }
 
     private var canDebugSimulateAdvance: Bool {
         maneuverSteps.count > 1 || (coaching?.segments.count ?? 0) > 1
+    }
+
+    /// Tiempo ya “consumido” por maniobras anteriores al paso actual (`simulatedStepIndex`).
+    private var consumedManeuverDurationSec: TimeInterval {
+        guard simulatedStepIndex > 0 else { return 0 }
+        let end = min(simulatedStepIndex, maneuverSteps.count)
+        var acc: TimeInterval = 0
+        for i in 0..<end {
+            acc += maneuverSteps[i].durationSec
+        }
+        return acc
+    }
+
+    private var consumedManeuverDistanceM: CLLocationDistance {
+        guard simulatedStepIndex > 0 else { return 0 }
+        let end = min(simulatedStepIndex, maneuverSteps.count)
+        var acc: CLLocationDistance = 0
+        for i in 0..<end {
+            acc += maneuverSteps[i].distanceM
+        }
+        return acc
+    }
+
+    private var remainingTripEtaMinutes: Int? {
+        guard routeTotalDurationSec > 0, !maneuverSteps.isEmpty else { return routeEtaMinutes }
+        let rem = max(0, routeTotalDurationSec - consumedManeuverDurationSec)
+        return max(1, Int(round(rem / 60.0)))
+    }
+
+    private var remainingRouteKm: Double? {
+        guard let totalKm = routeDistanceKm, !maneuverSteps.isEmpty else { return routeDistanceKm }
+        let totalM = totalKm * 1000
+        return max(0, totalM - consumedManeuverDistanceM) / 1000.0
     }
 
     var body: some View {
@@ -153,7 +193,7 @@ struct DriveNavigationView: View {
                 .minimumScaleFactor(0.75)
 
             if let seg = coachingSegmentForBanner {
-                let msg = (seg.recommendationMessage ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                let msg = seg.recommendationMessageForDisplay.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !msg.isEmpty {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: iconForCoachingAction(seg.recommendationAction))
@@ -210,7 +250,13 @@ struct DriveNavigationView: View {
                     .padding(.horizontal, 8)
             }
 
-            tripSummaryBar
+            if session.hasSelection {
+                NavigationHudBar(
+                    etaMinutes: remainingTripEtaMinutes,
+                    routeKm: remainingRouteKm,
+                    segment: coachingSegmentForBanner
+                )
+            }
 
             #if DEBUG
             if canDebugSimulateAdvance {
@@ -235,51 +281,10 @@ struct DriveNavigationView: View {
             }
             #endif
 
-            CoachBottomCard(segment: selectedSegment)
-
             LegalDisclaimerBanner()
         }
         .padding(.horizontal, 10)
         .padding(.bottom, 10)
-    }
-
-    private var tripSummaryBar: some View {
-        HStack(spacing: 16) {
-            Image(systemName: "clock.fill")
-                .font(.title3)
-                .foregroundStyle(ORTATheme.accent)
-            VStack(alignment: .leading, spacing: 2) {
-                if let m = routeEtaMinutes {
-                    Text("~\(m) min")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(.primary)
-                } else {
-                    Text("—")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                }
-                if let km = routeDistanceKm {
-                    Text(String(format: "%.1f km en ruta (MapKit)", km))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            Spacer(minLength: 0)
-            Image(systemName: "chevron.up.circle.fill")
-                .font(.title2)
-                .foregroundStyle(.secondary.opacity(0.6))
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(red: 0.96, green: 0.97, blue: 0.99))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
-        )
-        .environment(\.colorScheme, .light)
     }
 
     private func resetNavigationState() {
@@ -288,6 +293,7 @@ struct DriveNavigationView: View {
         nextStepDistanceText = nil
         routeEtaMinutes = nil
         routeDistanceKm = nil
+        routeTotalDurationSec = 0
         maneuverSteps = []
         simulatedStepIndex = 0
         selectedSegIdx = nil
@@ -359,6 +365,7 @@ struct DriveNavigationView: View {
             await MainActor.run {
                 maneuverSteps = []
                 simulatedStepIndex = 0
+                routeTotalDurationSec = 0
                 primaryInstruction = "No hay coordenadas para indicaciones."
                 nextStepDistanceText = nil
                 routeEtaMinutes = nil
@@ -377,6 +384,7 @@ struct DriveNavigationView: View {
                 await MainActor.run {
                     maneuverSteps = []
                     simulatedStepIndex = 0
+                    routeTotalDurationSec = 0
                     primaryInstruction = "Sin ruta en MapKit."
                     nextStepDistanceText = nil
                     routeEtaMinutes = nil
@@ -385,18 +393,21 @@ struct DriveNavigationView: View {
                 return
             }
             let steps = route.steps
+            let totalD = max(route.distance, 1)
             var maneuvers: [ManeuverDisplayStep] = []
             maneuvers.reserveCapacity(steps.count)
             for step in steps {
                 let t = step.instructions.trimmingCharacters(in: .whitespacesAndNewlines)
                 if t.isEmpty { continue }
-                maneuvers.append(ManeuverDisplayStep(text: t, distanceM: step.distance))
+                let dur = route.expectedTravelTime * (step.distance / totalD)
+                maneuvers.append(ManeuverDisplayStep(text: t, distanceM: step.distance, durationSec: dur))
             }
             let etaMin = max(1, Int(round(route.expectedTravelTime / 60.0)))
             let rKm = route.distance / 1000.0
             await MainActor.run {
                 maneuverSteps = maneuvers
                 simulatedStepIndex = 0
+                routeTotalDurationSec = route.expectedTravelTime
                 routeEtaMinutes = etaMin
                 routeDistanceKm = rKm
                 if maneuvers.isEmpty {
@@ -410,6 +421,7 @@ struct DriveNavigationView: View {
             await MainActor.run {
                 maneuverSteps = []
                 simulatedStepIndex = 0
+                routeTotalDurationSec = 0
                 primaryInstruction = "No se pudieron cargar giros."
                 nextStepDistanceText = nil
                 routeEtaMinutes = nil

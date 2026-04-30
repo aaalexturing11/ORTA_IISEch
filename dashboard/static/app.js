@@ -138,12 +138,15 @@ function coachingPopupHtml(s) {
     h += `ETA: +${fmt(s.eta_offset_min, 1)} min<br>`;
   }
   h += `<b>Clima:</b> ${fmt(s.ambient_temp_c, 1)}°C | Viento: ${fmt(s.wind_speed_ms, 1)} m/s | Lluvia: ${fmt(s.precip_mmph, 1)} mm/h<br>`;
-  if (s.recommendation_action !== "KEEP") {
-    h += `<b>Recomendación:</b> ${escapeHtml(s.recommendation_message)}<br>`;
-    h += `<i>Base científica:</i> ${escapeHtml(s.recommendation_science)}<br>`;
-    h += `Ahorro est.: ${Math.round((s.recommendation_savings || 0) * 100)}% | ${fmt(s.speed_kmh, 1)} km/h | ${fmtInt(s.rpm)} RPM`;
-  } else {
+  const act = String(s.recommendation_action || "KEEP").toUpperCase();
+  if (act === "KEEP") {
     h += `<span style="opacity:0.75">${escapeHtml(s.recommendation_message)}</span>`;
+  } else {
+    h += `<b>Recomendación:</b> ${escapeHtml(s.recommendation_message)}<br>`;
+    if (act !== "CRUISE_OPTIMAL" && s.recommendation_science) {
+      h += `<i>Base científica:</i> ${escapeHtml(s.recommendation_science)}<br>`;
+    }
+    h += `Ahorro est.: ${Math.round((s.recommendation_savings || 0) * 100)}% | ${fmt(s.speed_kmh, 1)} km/h | ${fmtInt(s.rpm)} RPM`;
   }
   return h;
 }
@@ -181,7 +184,7 @@ async function renderCoachingMap() {
       `${fmt(leg.min, 1)} → ${fmt(leg.max, 1)}<br>` +
       `Ruta: ${escapeHtml(data.origin_query || "")} → ${escapeHtml(data.destination_query || "")}<br>` +
       `${km} · ${n} tramos<br>` +
-      `<span style="opacity:0.8;font-size:11px">Marcadores: rojo = tráfico pesado, negro = pendiente fuerte; íconos de clima cada 20 tramos cuando hay lluvia o viento.</span>`;
+      `<span style="opacity:0.8;font-size:11px">Línea gris = ruta completa. Colores = tramos más “fuertes” (pendiente, tráfico, clima, etc.) con zoom lejano; al acercarte se dibujan más tramos y marcadores. Popup en cada tramo visible.</span>`;
   }
 
   const map = L.map("map-coaching", { zoomControl: true });
@@ -198,51 +201,149 @@ async function renderCoachingMap() {
   topo.addTo(map);
   L.control.layers({ "Mapa de calles (OpenStreetMap)": osm, "Mapa topográfico (OpenTopoMap)": topo }, {}).addTo(map);
 
+  const segmentsSorted = [...data.segments].sort((a, b) => a.seg_idx - b.seg_idx);
+  const routeCoords = [];
+  for (const s of segmentsSorted) {
+    if (!routeCoords.length) routeCoords.push([s.start_lat, s.start_lon]);
+    routeCoords.push([s.end_lat, s.end_lon]);
+  }
+  L.polyline(routeCoords, { color: "#64748b", weight: 2.5, opacity: 0.4, interactive: false }).addTo(map);
+
+  function segmentSignificance(s) {
+    let sc = Math.abs(+s.slope_pct || 0) * 2.4;
+    const al = s.alerts || [];
+    if (al.includes("traffic")) sc += 48;
+    if (al.includes("steep_slope")) sc += 38;
+    if (s.show_weather_marker) sc += 20;
+    const ra = String(s.recommendation_action || "").toUpperCase();
+    if (ra && ra !== "KEEP" && ra !== "CRUISE_OPTIMAL") sc += 14;
+    const c = +s.congestion_ratio || 1;
+    if (c > 1.15) sc += Math.min(30, (c - 1.15) * 40);
+    sc += Math.min(12, (+s.weight || 4) * 0.9);
+    return sc;
+  }
+
+  function segmentPolylineCap(z) {
+    if (z <= 6) return 50;
+    if (z <= 7) return 110;
+    if (z <= 8) return 240;
+    if (z <= 9) return 520;
+    if (z <= 10) return 1000;
+    if (z <= 11) return 1700;
+    if (z <= 12) return 2600;
+    return 999999;
+  }
+
+  const layerBySegIdx = new Map();
+  const segmentPolylineEntries = [];
   const bounds = [];
   for (const s of data.segments) {
-    L.polyline(
+    const line = L.polyline(
       [[s.start_lat, s.start_lon], [s.end_lat, s.end_lon]],
-      { color: s.color || "#3388ff", weight: s.weight || 4, opacity: 0.92 }
-    )
-      .addTo(map)
-      .bindPopup(coachingPopupHtml(s));
+      { color: s.color || "#3388ff", weight: s.weight || 4, opacity: 0.9 }
+    ).bindPopup(coachingPopupHtml(s));
+    layerBySegIdx.set(s.seg_idx, line);
+    segmentPolylineEntries.push({ seg_idx: s.seg_idx, score: segmentSignificance(s) });
     bounds.push([s.start_lat, s.start_lon], [s.end_lat, s.end_lon]);
+  }
 
-    if (s.alerts && s.alerts.includes("traffic")) {
-      L.circleMarker([s.start_lat, s.start_lon], {
-        radius: 6,
-        color: "#ef4444",
-        weight: 2,
-        fillColor: "#ef4444",
-        fillOpacity: 0.75,
-      })
-        .addTo(map)
-        .bindTooltip("Tráfico pesado", { sticky: true });
-    } else if (s.alerts && s.alerts.includes("steep_slope")) {
-      L.circleMarker([s.start_lat, s.start_lon], {
-        radius: 6,
-        color: "#111827",
-        weight: 2,
-        fillColor: "#111827",
-        fillOpacity: 0.75,
-      })
-        .addTo(map)
-        .bindTooltip("Pendiente fuerte", { sticky: true });
+  const segmentsDetailGroup = L.layerGroup().addTo(map);
+
+  /** Puntuación para priorizar incidentes visibles con zoom lejano. */
+  function trafficScore(s) {
+    const cong = +s.congestion_ratio || 1;
+    return 95 + Math.min(45, Math.max(0, cong - 1) * 28);
+  }
+  function slopeScore(s) {
+    const g = Math.abs(+s.slope_pct || 0);
+    return 62 + Math.min(48, g * 5.5);
+  }
+  function weatherScore(s) {
+    const p = +s.precip_mmph || 0;
+    const w = +s.wind_speed_ms || 0;
+    return 22 + Math.min(55, p * 16 + w * 3.2);
+  }
+
+  function incidentVisibleLimit(z) {
+    if (z <= 7) return 8;
+    if (z <= 9) return 14;
+    if (z <= 11) return 32;
+    if (z <= 13) return 70;
+    return 99999;
+  }
+
+  function buildIncidentLayers(segments) {
+    const items = [];
+    for (const s of segments) {
+      const lat = (+s.start_lat + +s.end_lat) / 2;
+      const lon = (+s.start_lon + +s.end_lon) / 2;
+      const alerts = s.alerts || [];
+      if (alerts.includes("traffic")) {
+        const sc = trafficScore(s);
+        const m = L.circleMarker([lat, lon], {
+          radius: 6,
+          color: "#ef4444",
+          weight: 2,
+          fillColor: "#ef4444",
+          fillOpacity: 0.78,
+        }).bindTooltip(`Tráfico (seg. ${s.seg_idx}, score ${sc.toFixed(0)})`, { sticky: true });
+        items.push({ score: sc, layer: m });
+      }
+      if (alerts.includes("steep_slope")) {
+        const sc = slopeScore(s);
+        const m = L.circleMarker([lat, lon], {
+          radius: 6,
+          color: "#111827",
+          weight: 2,
+          fillColor: "#111827",
+          fillOpacity: 0.78,
+        }).bindTooltip(`Pendiente fuerte (seg. ${s.seg_idx}, ${fmt(s.slope_pct, 1)}%)`, { sticky: true });
+        items.push({ score: sc, layer: m });
+      }
+      if (s.show_weather_marker) {
+        const sc = weatherScore(s);
+        const rainy = (+s.precip_mmph || 0) > 0.5;
+        const icon = L.divIcon({
+          className: "wx-icon",
+          html: rainy ? "🌧" : "🌬",
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        });
+        const m = L.marker([lat, lon], { icon }).bindTooltip(
+          rainy ? `Lluvia: ${fmt(s.precip_mmph, 1)} mm/h` : `Viento: ${fmt(s.wind_speed_ms, 1)} m/s`,
+          { sticky: true }
+        );
+        items.push({ score: sc, layer: m });
+      }
+    }
+    items.sort((a, b) => b.score - a.score);
+    return items;
+  }
+
+  const incidentEntries = buildIncidentLayers(data.segments);
+  const incidentsGroup = L.layerGroup().addTo(map);
+
+  function syncCoachingMapDensity() {
+    const z = map.getZoom();
+
+    segmentsDetailGroup.clearLayers();
+    const polyLim = segmentPolylineCap(z);
+    const sortedSeg = [...segmentPolylineEntries].sort((a, b) => b.score - a.score);
+    const keepSeg = new Set(sortedSeg.slice(0, Math.min(polyLim, sortedSeg.length)).map(e => e.seg_idx));
+    for (const s of segmentsSorted) {
+      if (keepSeg.has(s.seg_idx)) {
+        segmentsDetailGroup.addLayer(layerBySegIdx.get(s.seg_idx));
+      }
     }
 
-    if (s.show_weather_marker) {
-      const rainy = (s.precip_mmph || 0) > 0.5;
-      const icon = L.divIcon({
-        className: "wx-icon",
-        html: rainy ? "🌧" : "🌬",
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
-      });
-      L.marker([s.start_lat, s.start_lon], { icon })
-        .addTo(map)
-        .bindTooltip(rainy ? `Lluvia: ${fmt(s.precip_mmph, 1)} mm/h` : `Viento: ${fmt(s.wind_speed_ms, 1)} m/s`, { sticky: true });
+    const incLim = incidentVisibleLimit(z);
+    incidentsGroup.clearLayers();
+    for (let i = 0; i < incidentEntries.length && i < incLim; i++) {
+      incidentsGroup.addLayer(incidentEntries[i].layer);
     }
   }
+
+  map.on("zoomend", syncCoachingMapDensity);
 
   if (data.origin) {
     L.marker([data.origin.lat, data.origin.lon], { title: data.origin.label })
@@ -258,6 +359,9 @@ async function renderCoachingMap() {
   if (bounds.length) {
     map.fitBounds(bounds, { padding: [24, 24] });
   }
+  map.whenReady(() => {
+    requestAnimationFrame(syncCoachingMapDensity);
+  });
 }
 
 // ---------------- Renderers ----------------

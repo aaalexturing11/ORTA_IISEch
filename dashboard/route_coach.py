@@ -13,7 +13,6 @@ import pandas as pd
 class HeavyTruckOptimizer:
     def __init__(self) -> None:
         self.optimum_rpm = (900, 1400)
-        self.peak_torque_nm = 2700
         self.frontal_area = 9.5
 
     def get_advice(
@@ -30,12 +29,12 @@ class HeavyTruckOptimizer:
             return {
                 "action": "LOW_SPEED_STEADY",
                 "ui_message": (
-                    "Tráfico denso: Mantenga velocidad baja constante. "
-                    "No acelere y frene bruscamente."
+                    "Tráfico denso. Mantén una velocidad baja y constante; "
+                    "evita acelerar y frenar de forma repetida."
                 ),
                 "science": (
-                    "Gonder (2012): Mantener una velocidad baja constante en tráfico "
-                    "ahorra hasta un 20% frente al ciclo de aceleración y frenado total."
+                    "Un ritmo estable en congestión suele consumir menos combustible "
+                    "que alternar aceleraciones y frenadas continuas."
                 ),
                 "savings": 0.20,
             }
@@ -43,12 +42,12 @@ class HeavyTruckOptimizer:
             return {
                 "action": "COASTING",
                 "ui_message": (
-                    "Congestión detectada adelante: Suelte el pedal. "
-                    "Deje que el peso del camión lo lleve."
+                    "Congestión más adelante. Levanta el pie del acelerador "
+                    "y deja avanzar el vehículo por inercia."
                 ),
                 "science": (
-                    "Nasir (2014): La navegación verde utiliza datos de flujo para "
-                    "reducir la energía cinética desperdiciada en frenado."
+                    "Anticipar la cola y circular sin acelerar de más reduce "
+                    "frenadas bruscas y consumo."
                 ),
                 "savings": 0.35,
             }
@@ -56,12 +55,12 @@ class HeavyTruckOptimizer:
             return {
                 "action": "WIND_COMPENSATION",
                 "ui_message": (
-                    f"Viento fuerte ({wind_ms} m/s): Reduzca a 70 km/h. "
-                    "El viento está actuando como un freno constante."
+                    f"Viento fuerte ({wind_ms:.0f} m/s). Reduce la velocidad; "
+                    f"por ejemplo hacia 70 km/h si el límite, la carga y la vía lo permiten."
                 ),
                 "science": (
-                    "La fuerza de arrastre aumenta con el cuadrado de la velocidad "
-                    "del aire; bajar ~10 km/h reduce el gasto de forma notable."
+                    "A mayor velocidad, el viento de frente incrementa la resistencia "
+                    "y el consumo de forma notable."
                 ),
                 "savings": 0.15,
             }
@@ -69,33 +68,83 @@ class HeavyTruckOptimizer:
             return {
                 "action": "WET_EFFICIENCY",
                 "ui_message": (
-                    "Lluvia: Reduzca velocidad. El arrastre por agua y la pérdida de "
-                    "tracción bajan la eficiencia."
+                    "Lluvia intensa. Reduce la velocidad: el pavimento mojado "
+                    "disminuye la adherencia y aumenta el riesgo y el consumo."
                 ),
                 "science": (
-                    "Gonder (2012): Superficies mojadas aumentan resistencia a la "
-                    "rodadura y el riesgo de micro-patinaje."
+                    "En superficie mojada, una marcha más moderada mejora la adherencia "
+                    "y ayuda a controlar el consumo."
                 ),
                 "savings": 0.08,
             }
+        # --- Perfil de pendiente (orden: subida fuerte → suave → bajada fuerte → suave → recta) ---
         if slope > 4:
             return {
                 "action": "POWER_BAND",
                 "ui_message": (
-                    "Subida pronunciada: Mantenga el motor entre 1100-1300 RPM para "
-                    f"torque máximo ({self.peak_torque_nm} Nm)."
+                    "Subida pronunciada. Aumenta la potencia de forma gradual; "
+                    "evita patinar y mantener el acelerador al máximo de forma continua."
                 ),
                 "science": (
-                    "Ficha técnica motor: operar en el pico de torque evita "
-                    "inyecciones extra de combustible por falta de fuerza."
+                    "En pendientes marcadas, acelerar de manera progresiva suele "
+                    "mantener el consumo más controlado."
                 ),
                 "savings": 0.12,
             }
+        if slope > 2:
+            return {
+                "action": "CLIMB_MILD",
+                "ui_message": (
+                    "Subida moderada. Mantén un ritmo estable y evita "
+                    "aceleraciones bruscas."
+                ),
+                "science": (
+                    "Un avance constante en rampas suaves reduce picos de consumo."
+                ),
+                "savings": 0.06,
+            }
+        if slope < -4:
+            return {
+                "action": "DESCENT_STEEP",
+                "ui_message": (
+                    "Bajada pronunciada. Prioriza el frenado motor y el uso de "
+                    "marchas adecuadas; aplica el freno de pedal solo de forma breve "
+                    "para evitar recalentamiento."
+                ),
+                "science": (
+                    "En largas pendientes descendentes, el frenado motor reparte "
+                    "mejor la energía que el freno de pedal sostenido."
+                ),
+                "savings": 0.10,
+            }
+        if slope < -2:
+            return {
+                "action": "DESCENT_MODERATE",
+                "ui_message": (
+                    "Pendiente descendente. Suelta el acelerador, circula por inercia "
+                    "y regula la velocidad con retención o marcha adecuada; "
+                    "usa el freno de pedal solo cuando sea necesario."
+                ),
+                "science": (
+                    "Combinar inercia y frenado motor reduce el uso prolongado "
+                    "del freno de pedal."
+                ),
+                "savings": 0.07,
+            }
+        # Casi recto / llano: recomendación de crucero según velocidad típica del tramo
+        v_hint = int(round(speed / 5.0) * 5)
+        v_hint = max(50, min(95, v_hint))
         return {
-            "action": "KEEP",
-            "ui_message": "Condiciones óptimas: Mantenga crucero estable.",
-            "science": "Estado estacionario: mínima variación de aceleración detectada.",
-            "savings": 0.0,
+            "action": "CRUISE_OPTIMAL",
+            "ui_message": (
+                f"Tramo recto. Velocidad recomendada en torno a {v_hint} km/h, "
+                f"según límite de vía, carga y condiciones meteorológicas."
+            ),
+            "science": (
+                "En tramos llanos, mantener una velocidad estable reduce el consumo "
+                "frente a variaciones frecuentes de ritmo."
+            ),
+            "savings": 0.03,
         }
 
 
