@@ -1,0 +1,22 @@
+{
+  "route_id": "2aa7d752c017",
+  "origin_query": "Veracruz, Mexico",
+  "destination_query": "Mexico City, Mexico",
+  "origin": [
+    19.333333,
+    -96.666667
+  ],
+  "destination": [
+    19.4326296,
+    -99.1331785
+  ],
+  "departure_iso": "2026-04-30T03:05:50.608929+00:00",
+  "segment_length_m": 200.0,
+  "total_distance_m": 333345.9,
+  "total_duration_s": 14993.3,
+  "n_segments": 1668,
+  "routing_provider": "OSRM (public demo)",
+  "elevation_provider": "Open-Topo-Data SRTM 30m",
+  "traffic_provider": null,
+  "generated_at": "2026-04-30T03:06:18.952734+00:00"
+}

@@ -1,0 +1,22 @@
+{
+  "route_id": "5b0cc5b64d46",
+  "origin_query": "Guadalajara, Mexico",
+  "destination_query": "Monterrey, Mexico",
+  "origin": [
+    20.6720375,
+    -103.338396
+  ],
+  "destination": [
+    25.6802019,
+    -100.315258
+  ],
+  "departure_iso": "2026-04-30T03:04:31.432459+00:00",
+  "segment_length_m": 200.0,
+  "total_distance_m": 783260.2,
+  "total_duration_s": 35698.8,
+  "n_segments": 3924,
+  "routing_provider": "OSRM (public demo)",
+  "elevation_provider": "Open-Topo-Data SRTM 30m",
+  "traffic_provider": null,
+  "generated_at": "2026-04-30T03:05:42.954313+00:00"
+}

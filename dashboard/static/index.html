@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Heavy Truck Ops Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Heavy Truck Ops</h1>
+        <p id="subtitle" class="muted">Select a route to begin.</p>
+      </div>
+      <div class="controls">
+        <label>Route
+          <select id="route-select"></select>
+        </label>
+        <label>Truck
+          <select id="truck-select"></select>
+        </label>
+        <label>Since
+          <input type="date" id="since-input" />
+        </label>
+        <button id="apply-btn" type="button">Apply</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="kpi-grid" id="kpi-grid"></section>
+
+      <section class="card">
+        <div class="card-header"><h2>Route &amp; Fuel Hotspots</h2></div>
+        <div class="row">
+          <div><div id="map"></div></div>
+          <div class="hotspots">
+            <h3>Top fuel-burn segments</h3>
+            <p class="muted small">Click a row to fly the map there.</p>
+            <table class="data-table">
+              <thead><tr><th>Seg</th><th>L/km</th><th>Avg kph</th><th>Slope %</th></tr></thead>
+              <tbody id="hotspots-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Drivers — composite ranking</h2></div>
+        <p class="muted small" id="driver-baselines"></p>
+        <div class="row">
+          <div class="chart-box"><canvas id="driver-chart"></canvas></div>
+          <div>
+            <table class="data-table">
+              <thead><tr>
+                <th>#</th><th>Driver</th><th>Score</th>
+                <th>L/100km</th><th>Excess L</th>
+                <th>Idle h</th><th>Excess idle h</th>
+              </tr></thead>
+              <tbody id="drivers-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Truck</h2></div>
+        <table class="data-table">
+          <thead><tr><th>Spec</th><th>Value</th></tr></thead>
+          <tbody id="trucks-body"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Idle &amp; Anomalies</h2></div>
+        <div class="row">
+          <div>
+            <h3 class="sub-h">Idle hours per driver</h3>
+            <p class="muted small" id="idle-baseline"></p>
+            <table class="data-table">
+              <thead><tr><th>Driver</th><th>Idle h</th><th>h/100km</th><th>Excess h</th></tr></thead>
+              <tbody id="idle-body"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3 class="sub-h">Anomalies by type</h3>
+            <p class="muted small" id="anom-summary"></p>
+            <div class="chart-box short"><canvas id="anom-chart"></canvas></div>
+            <h3 class="sub-h" style="margin-top:14px">Per-driver breakdown</h3>
+            <table class="data-table" id="anom-by-driver">
+              <thead><tr id="anom-driver-head"></tr></thead>
+              <tbody id="anom-driver-body"></tbody>
+            </table>
+            <h3 class="sub-h" style="margin-top:14px">Most recent events</h3>
+            <table class="data-table">
+              <thead><tr><th>When</th><th>Driver</th><th>Kind</th><th>Seg</th><th>Detail</th></tr></thead>
+              <tbody id="anom-recent-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
