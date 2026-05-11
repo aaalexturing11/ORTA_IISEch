@@ -35,9 +35,9 @@ struct CoachingMapView: View {
         Map(position: $position, selection: $selectedSegIdx) {
             if routeOutline.count >= 2 {
                 MapPolyline(coordinates: routeOutline)
-                    .stroke(Color.white.opacity(0.22), lineWidth: 4)
+                    .stroke(Color(red: 0.55, green: 0.82, blue: 1.0).opacity(0.55), lineWidth: 5)
                 MapPolyline(coordinates: routeOutline)
-                    .stroke(Color(red: 0.22, green: 0.28, blue: 0.38), lineWidth: 2.5)
+                    .stroke(Color(red: 0.38, green: 0.68, blue: 0.98), lineWidth: 3)
             }
             ForEach(visibleColoredSegments) { seg in
                 MapPolyline(coordinates: seg.coordinatePair)

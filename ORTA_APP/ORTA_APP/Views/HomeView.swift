@@ -53,7 +53,9 @@ struct HomeView: View {
                         ContentUnavailableView(
                             "Sin rutas",
                             systemImage: "mappin.slash",
-                            description: Text("Encendé el servidor ORTA en Ajustes.")
+                            description: Text(
+                                "En Ajustes configurá la URL del API. En iPhone físico 127.0.0.1 no sirve: usá la IP de tu Mac (misma Wi‑Fi) o un túnel (p. ej. cloudflared / ngrok)."
+                            )
                         )
                         .frame(minHeight: 120)
                     } else {
@@ -77,6 +79,9 @@ struct HomeView: View {
                 }
                 .padding(16)
             }
+            // Margen extra al final del contenido desplazable: en dispositivo el TabView no está
+            // en el preview de HomeView solo, y un padding fijo suele quedar corto.
+            .contentMargins(.bottom, 120, for: .scrollContent)
             .background(ORTATheme.bg.ignoresSafeArea())
             .navigationTitle("Planear viaje")
             .toolbarBackground(ORTATheme.card, for: .navigationBar)
@@ -329,7 +334,22 @@ struct HomeView: View {
     }
 }
 
-#Preview {
+#Preview("Home sola (sin barra de pestañas)") {
     HomeView()
         .environmentObject(AppSession())
+}
+
+/// Misma jerarquía que en la app: el TabView reserva abajo ~pestañas + home indicator.
+#Preview("Como en la app (TabView)") {
+    TabView {
+        HomeView()
+            .tabItem { Label("Viaje", systemImage: "point.topleft.down.curvedto.point.bottomright.up") }
+        Text("Mapa")
+            .tabItem { Label("Mapa", systemImage: "map.fill") }
+        Text("Ajustes")
+            .tabItem { Label("Ajustes", systemImage: "gearshape.fill") }
+    }
+    .environmentObject(AppSession())
+    .tint(ORTATheme.accent)
+    .preferredColorScheme(.dark)
 }

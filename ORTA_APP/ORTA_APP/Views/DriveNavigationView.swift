@@ -23,6 +23,8 @@ struct DriveNavigationView: View {
     @State private var nextStepDistanceText: String?
     @State private var routeEtaMinutes: Int?
     @State private var routeDistanceKm: Double?
+    /// L/100 km del simulador (API KPIs); se usa en el HUD para litros ~ del tramo.
+    @State private var fuelLPer100km: Double?
     /// Duración total de la ruta MapKit (para repartir tiempo entre pasos).
     @State private var routeTotalDurationSec: TimeInterval = 0
     @State private var maneuverSteps: [ManeuverDisplayStep] = []
@@ -316,13 +318,6 @@ struct DriveNavigationView: View {
                     .foregroundStyle(.orange)
                     .padding(.horizontal, 8)
             }
-            if let vErr = voiceAnnouncer.lastErrorDescription, !vErr.isEmpty {
-                Text(vErr)
-                    .font(.caption2)
-                    .foregroundStyle(.orange)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 10)
-            }
 
             if session.hasSelection {
                 HStack {
@@ -330,6 +325,7 @@ struct DriveNavigationView: View {
                     NavigationHudBar(
                         etaMinutes: remainingTripEtaMinutes,
                         routeKm: remainingRouteKm,
+                        fuelLPer100km: fuelLPer100km,
                         segment: coachingSegmentForBanner
                     )
                 }
@@ -370,6 +366,7 @@ struct DriveNavigationView: View {
         nextStepDistanceText = nil
         routeEtaMinutes = nil
         routeDistanceKm = nil
+        fuelLPer100km = nil
         routeTotalDurationSec = 0
         maneuverSteps = []
         simulatedStepIndex = 0
@@ -419,6 +416,7 @@ struct DriveNavigationView: View {
         guard let rs = session.selectedRouteSlug, let ts = session.selectedTruckSlug else { return }
         isLoading = true
         errorText = nil
+        await MainActor.run { fuelLPer100km = nil }
         defer { isLoading = false }
         let api = ORTAAPIService(baseURL: session.apiBaseURL)
         do {
@@ -433,6 +431,12 @@ struct DriveNavigationView: View {
                 }
             }
             await loadTurnSteps(from: c)
+            do {
+                let k = try await api.fetchKPIs(route: rs, truck: ts)
+                await MainActor.run { fuelLPer100km = k.fuelLPer100km }
+            } catch {
+                await MainActor.run { fuelLPer100km = nil }
+            }
         } catch {
             await MainActor.run { errorText = error.localizedDescription }
         }

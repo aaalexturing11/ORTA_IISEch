@@ -11,6 +11,8 @@ struct NavigationHudBar: View {
 
     let etaMinutes: Int?
     let routeKm: Double?
+    /// Consumo del backend (L/100 km); con `routeKm` se estiman litros del tramo mostrado.
+    let fuelLPer100km: Double?
     let segment: CoachingSegment?
 
     var body: some View {
@@ -19,6 +21,8 @@ struct NavigationHudBar: View {
                 chip(icon: "clock.fill", label: etaLabel)
                 separator
                 chip(icon: "map.fill", label: kmLabel)
+                separator
+                chip(icon: "fuelpump.fill", label: fuelLitersLabel)
                 if let s = segment {
                     separator
                     chip(icon: "mappin.circle.fill", label: "Tramo \(s.segIdx)")
@@ -73,6 +77,16 @@ struct NavigationHudBar: View {
         return String(format: "%.1f km", km)
     }
 
+    /// Litros aprox. para los km del HUD (misma lógica que la tarjeta de Viaje: distancia × L/100 km).
+    private var fuelLitersLabel: String {
+        guard let km = routeKm, km > 0, let f = fuelLPer100km, f > 0 else { return "—" }
+        let liters = km * f / 100.0
+        if liters >= 100 {
+            return String(format: "~%.0f L", liters)
+        }
+        return String(format: "~%.1f L", liters)
+    }
+
     private func chip(icon: String, label: String) -> some View {
         HStack(spacing: 5) {
             Image(systemName: icon)
@@ -102,11 +116,13 @@ struct NavigationHudBar: View {
         NavigationHudBar(
             etaMinutes: 433,
             routeKm: 648.2,
+            fuelLPer100km: 32.5,
             segment: nil
         )
         NavigationHudBar(
             etaMinutes: 42,
             routeKm: 18.8,
+            fuelLPer100km: nil,
             segment: nil
         )
     }

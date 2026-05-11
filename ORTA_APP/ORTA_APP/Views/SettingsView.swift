@@ -35,7 +35,11 @@ struct SettingsView: View {
                         .textContentType(.URL)
                         .keyboardType(.URL)
                         .autocorrectionDisabled()
-                    Text("Simulador iOS → Mac: `http://127.0.0.1:8000` con el dashboard FastAPI en marcha.")
+                    Text(
+                        "Simulador: http://127.0.0.1:8000. iPhone físico: esa URL apunta al teléfono. " +
+                            "Usá la IP LAN de tu Mac (misma Wi‑Fi), p. ej. http://192.168.1.42:8000, con uvicorn en la Mac: --host 0.0.0.0 --port 8000. " +
+                            "Alternativa: túnel (cloudflared tunnel --url http://127.0.0.1:8000 o ngrok) y pegás la URL https."
+                    )
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } header: {

@@ -32,7 +32,6 @@ private final class SystemSpeechDelegate: NSObject, AVSpeechSynthesizerDelegate 
 @MainActor
 final class NavigationVoiceAnnouncer: ObservableObject {
     @Published private(set) var isSpeaking = false
-    @Published private(set) var lastErrorDescription: String?
 
     private let client = ElevenLabsTTSClient()
     private let audioDelegate = AVAudioFinishDelegate()
@@ -87,7 +86,6 @@ final class NavigationVoiceAnnouncer: ObservableObject {
         lastQueuedCoachingKey = ""
         storedManeuverLine = ""
         storedCoachingLine = ""
-        lastErrorDescription = nil
     }
 
     func replayLast() {
@@ -197,33 +195,17 @@ final class NavigationVoiceAnnouncer: ObservableObject {
         activatePlaybackSession()
 
         if !canUseElevenLabs {
-            await MainActor.run {
-                lastErrorDescription = nil
-            }
             await speakSystemLine(line)
             return
         }
 
         do {
             let data = try await client.synthesize(text: line, apiKey: apiKey)
-            await MainActor.run { lastErrorDescription = nil }
             let played = await playMPEGData(data)
             if !played {
-                await MainActor.run {
-                    lastErrorDescription = "No se pudo reproducir el audio de ElevenLabs; usando voz del sistema."
-                }
                 await speakSystemLine(line)
             }
         } catch {
-            let msg: String
-            if let le = error as? LocalizedError, let d = le.errorDescription {
-                msg = d
-            } else {
-                msg = (error as NSError).localizedDescription
-            }
-            await MainActor.run {
-                lastErrorDescription = "\(msg) · Se usa voz del sistema."
-            }
             #if DEBUG
             print("[ORTA voice] ElevenLabs error: \(error)")
             #endif
